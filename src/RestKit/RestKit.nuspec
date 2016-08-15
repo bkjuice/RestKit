@@ -3,18 +3,18 @@
   <metadata>
     <id>RestKit</id>
     <version>0.8.0-alpha</version>
-    <title>Resourceful</title>
+    <title>RestKit</title>
     <authors>Bruce Krakower</authors>
     <owners>Bruce Krakower</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Resourceful is a very simple HTTP client that removes the need to re-write the boilerplate.</summary>
+    <summary>RestKit is a very simple HTTP client that removes the need to re-write the boilerplate.</summary>
     <description>
-      Resourceful can be as simple as Resource.Json{T}().Get(...uri). Simple variations exist for Xml and Text. 
-      For more advanced scenarios, you can hook into a callback pipeline and also have full access to the underlying HttpClient.
-      Use of Resourceful is testable using the IHttpResource{T} interface as an abstraction, and also via the well-known practice of injecting a mock HttpMessageHandler.
+      Using RestKit is as simple as 'Resource.Json{T}().Get(uri)'. Variations exist for Xml and Text. 
+      For advanced scenarios, you have control of serialization, a callback pipeline and full access to the underlying HttpClient.
+      Use of RestKit is testable using the IHttpResource{T} interface and/or by injecting a mock HttpMessageHandler.
     </description>
     <copyright>Copyright ©  2016</copyright>
-    <licenseUrl>https://github.com/bkjuice/RestKit/master/LICENSE</licenseUrl>
+    <licenseUrl>https://github.com/bkjuice/RestKit/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/bkjuice/ResKit</projectUrl>
     <tags>REST "Http Client" JSON XML HTTP</tags>
   </metadata>
