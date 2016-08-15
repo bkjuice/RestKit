@@ -14,8 +14,8 @@
       Use of Resourceful is testable using the IHttpResource{T} interface as an abstraction, and also via the well-known practice of injecting a mock HttpMessageHandler.
     </description>
     <copyright>Copyright ©  2016</copyright>
-    <licenseUrl>https://github.com/bkjuice/resourceful/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/bkjuice/resourceful</projectUrl>
+    <licenseUrl>https://github.com/bkjuice/RestKit/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/bkjuice/ResKit</projectUrl>
     <tags>REST "Http Client" JSON XML HTTP</tags>
   </metadata>
 </package>
