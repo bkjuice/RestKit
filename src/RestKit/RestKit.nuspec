@@ -9,9 +9,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>RestKit is a very simple HTTP client that removes the need to re-write the boilerplate.</summary>
     <description>
-      Using RestKit is as simple as 'Resource.Json{T}().Get(uri)'. Variations exist for Xml and Text. 
-      For advanced scenarios, you have control of serialization, a callback pipeline and full access to the underlying HttpClient.
-      Use of RestKit is testable using the IHttpResource{T} interface and/or by injecting a mock HttpMessageHandler.
+      Using RestKit is as simple as 'Resource.Json{T}().Get(uri)'. Variations exist for Xml and Text. For advanced scenarios, you have control of serialization, a callback pipeline and full access to the underlying HttpClient. Use of RestKit is testable using the IHttpResource{T} interface and/or by injecting a mock HttpMessageHandler.
     </description>
     <copyright>Copyright ©  2016</copyright>
     <licenseUrl>https://github.com/bkjuice/RestKit/blob/master/LICENSE</licenseUrl>
