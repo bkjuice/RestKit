@@ -88,6 +88,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RestKit\RestKit.csproj">
+      <Project>{de3a6223-af0a-4583-bdfb-63957829e7ba}</Project>
+      <Name>RestKit</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
