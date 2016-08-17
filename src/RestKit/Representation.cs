@@ -11,15 +11,15 @@ using System.Xml.Linq;
 
 namespace RestKit
 {
-    public sealed class Response<T> : IDisposable
+    public sealed class Representation : IDisposable
     {
-        private MediaHandler<T> mediaHandler;
+        private MediaHandler mediaHandler;
 
         private Lazy<ReadOnlySeekableStream> contentCopy;
 
         private int defaultBufferSize;
 
-        public Response(HttpResponseMessage reply, MediaHandler<T> mediaHandler, int defaultBufferSize = 4096)
+        public Representation(HttpResponseMessage reply, MediaHandler mediaHandler, int defaultBufferSize = 4096)
         {
             Contract.Requires<ArgumentNullException>(reply != null);
 
@@ -59,15 +59,32 @@ namespace RestKit
 
         public string MediaType { get; private set; }
 
-        public bool TryDeserialize(out T reply)
+        public bool TryDeserialize<TReply>(out TReply reply)
         {
-            reply = default(T);
-            return this.mediaHandler?.TryDeserialize(this.GetContentAsStream(), this.MediaType, out reply) == true;
+            reply = default(TReply);
+            object output = null;
+            if( this.mediaHandler?.TryDeserialize(this.GetContentAsStream(), this.MediaType, out output) == true)
+            {
+                reply = (TReply)output;
+                return true;
+            }
+
+            return false;
         }
 
         public XElement GetContentAsXElement()
         {
-            return XElement.Load(this.GetContentAsStream());
+            return XElement.Load(this.GetContentAsStream(), LoadOptions.PreserveWhitespace);
+        }
+
+        public XDocument GetContentAsXDocument()
+        {
+            return XDocument.Load(this.GetContentAsStream(), LoadOptions.PreserveWhitespace);
+        }
+
+        public dynamic GetContentAsXml()
+        {
+            return this.GetContentAsXElement().ToDynamic();
         }
 
         public XmlReader GetContentAsXmlReader()
@@ -82,7 +99,7 @@ namespace RestKit
 
         public dynamic GetContentAsJson()
         {
-            return this.GetContentAsJsonMap().ToExpando();
+            return this.GetContentAsJsonMap().ToDynamic();
         }
 
         public Stream GetContentAsStream()

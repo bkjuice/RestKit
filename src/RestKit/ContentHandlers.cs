@@ -1,34 +1,47 @@
-﻿using System;
+﻿using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Dynamic;
-using System.IO;
-using System.Net.Http;
-using System.Text;
-using System.Web.Script.Serialization;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace RestKit
 {
     internal static class ContentHandlers
     {
-        ////private static Dictionary<Type, Func<object, HttpContent>> writers =
-        ////    new Dictionary<Type, Func<object, HttpContent>>
-        ////    {
-        ////        [typeof(string)] = o => new StringContent((string)o, Encoding.UTF8),
-        ////        [typeof(Stream)] = o => ((Stream)o).CopyToContent(),
-        ////        [typeof(MemoryStream)] = o => ((Stream)o).CopyToContent(),
-        ////        [typeof(FileStream)] = o => ((Stream)o).CopyToContent(),
-        ////        [typeof(XDocument)] = o => ((XDocument)o).CopyToContent(),
-        ////        [typeof(XElement)] = o => ((XElement)o).CopyToContent(),
-        ////        [typeof(StreamReader)] = o => (((TextReader)o).CopyToContent()),
-        ////        [typeof(StringReader)] = o => (((TextReader)o).CopyToContent()),
-        ////        [typeof(TextReader)] = o => (((TextReader)o).CopyToContent()),
-        ////    };
+        public static dynamic ToDynamic(this XElement node)
+        {
+            dynamic output = new ExpandoObject();
 
-        public static ExpandoObject ToExpando(this IDictionary<string, object> input)
+            output.Name = node.Name.LocalName;
+            output.Namespace = node.Name.Namespace?.NamespaceName ?? string.Empty;
+            output.Value = node.Value;
+            output.HasAttributes = node.HasAttributes;
+
+            if (node.HasAttributes)
+            {
+                output.Attributes = new List<KeyValuePair<string, string>>();
+                foreach (var attribute in node.Attributes())
+                {
+                    var keyedValue = new KeyValuePair<string, string>(attribute.Name.LocalName, attribute.Value);
+                    output.Attributes.Add(keyedValue);
+                }
+            }
+
+            output.HasElements = node.HasElements;
+            if (node.HasElements)
+            {
+                output.Elements = new List<dynamic>();
+                foreach (var element in node.Elements())
+                {
+                    dynamic temp = element.ToDynamic();
+                    output.Elements.Add(temp);
+                }
+            }
+
+            return output;
+        }
+
+        public static dynamic ToDynamic(this IDictionary<string, object> input)
         {
             var expando = new ExpandoObject();
             var output = (IDictionary<string, object>)expando;
@@ -37,11 +50,11 @@ namespace RestKit
             {
                 if (pair.Value is IDictionary<string, object>)
                 {
-                    output.Add(pair.Key, ((IDictionary<string, object>)pair.Value).ToExpando());
+                    output.Add(pair.Key, ((IDictionary<string, object>)pair.Value).ToDynamic());
                 }
-                else if (pair.Value is ICollection)
+                else if (pair.Value is IEnumerable)
                 {
-                    output.Add(pair.Key, ((ICollection)pair.Value).BuildExpandoArray());
+                    output.Add(pair.Key, ((IEnumerable)pair.Value).BuildExpandoJsonArray());
                 }
                 else
                 {
@@ -52,14 +65,14 @@ namespace RestKit
             return expando;
         }
 
-        private static List<object> BuildExpandoArray(this ICollection values)
+        private static List<object> BuildExpandoJsonArray(this IEnumerable values)
         {
             var items = new List<object>();
             foreach (var item in values)
             {
                 if (item is IDictionary<string, object>)
                 {
-                    items.Add(((IDictionary<string, object>)item).ToExpando());
+                    items.Add(((IDictionary<string, object>)item).ToDynamic());
                 }
                 else
                 {
@@ -69,35 +82,5 @@ namespace RestKit
 
             return items;
         }
-
-        ////private static HttpContent CopyToContent(this StringBuilder builder)
-        ////{
-        ////    return new StringContent(builder.ToString(), Encoding.UTF8);
-        ////}
-
-        ////private static HttpContent CopyToContent(this TextReader reader)
-        ////{
-        ////    return new StringContent(reader.ReadToEnd(), Encoding.UTF8);
-        ////}
-
-        ////private static HttpContent CopyToContent(this XNode node)
-        ////{
-        ////    var content = new MemoryStream(4096);
-        ////    var writer = new XmlTextWriter(content, Encoding.UTF8);
-        ////    node.WriteTo(writer);
-        ////    writer.Flush();
-        ////    content.Position = 0;
-        ////    return new StreamContent(content);
-        ////}
-
-        ////private static HttpContent CopyToContent(this Stream s)
-        ////{
-        ////    // Ensure the stream is wholly owned to
-        ////    // avoid surprises with disposals:
-        ////    var content = new MemoryStream(4096);
-        ////    s.CopyTo(content);
-        ////    content.Position = 0;
-        ////    return new StreamContent(content);
-        ////}
     }
 }

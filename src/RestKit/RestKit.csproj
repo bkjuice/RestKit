@@ -99,19 +99,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContentHandlers.cs" />
-    <Compile Include="IHttpResource{TRequest,TReply}.cs" />
     <Compile Include="IMediaConfiguration.cs" />
     <Compile Include="IEventConfiguration.cs" />
     <Compile Include="MediaHandler.cs" />
     <Compile Include="ReadOnlySeekableStream.cs" />
     <Compile Include="Resource.cs" />
     <Compile Include="ResourceEventConfiguration.cs" />
-    <Compile Include="Resource{TRequest,TReply}.cs" />
     <Compile Include="Resource{T}.cs" />
     <None Include="ResourceStatus.cs" />
     <Compile Include="IHttpResource{T}.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Response{T}.cs" />
+    <Compile Include="Representation.cs" />
     <Compile Include="UriExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

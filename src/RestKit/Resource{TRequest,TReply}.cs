@@ -14,9 +14,9 @@ namespace RestKit
 
         private Action<TRequest, Stream> onSerialize;
 
-        private MediaHandler<TReply> handlerHead;
+        private MediaHandler handlerHead;
 
-        private MediaHandler<TReply> handlerTail;
+        private MediaHandler handlerTail;
 
         public Resource() : this(new HttpClient())
         {
@@ -67,7 +67,7 @@ namespace RestKit
 
         public void AddDeserializer(Func<Stream, TReply> deserializerFunc, string mediaType)
         {
-            var handler = new MediaHandler<TReply>(deserializerFunc, mediaType);
+            var handler = new MediaHandler(deserializerFunc, mediaType);
             if (handlerHead == null)
             {
                 this.handlerHead = handler;
@@ -80,12 +80,12 @@ namespace RestKit
             }
         }
 
-        public Response<TReply> Get(Uri uri)
+        public Response Get(Uri uri)
         {
             return this.GetAsync(uri).Result;
         }
 
-        public async Task<Response<TReply>> GetAsync(Uri uri)
+        public async Task<Response> GetAsync(Uri uri)
         {
             this.eventConfig?.InvokeOnBeforeGet();
 
@@ -96,12 +96,12 @@ namespace RestKit
             }
         }
 
-        public Response<TReply> Post(Uri uri, TRequest resource)
+        public Response Post(Uri uri, TRequest resource)
         {
             return this.PostAsync(uri, resource).Result;
         }
 
-        public async Task<Response<TReply>> PostAsync(Uri uri, TRequest resource)
+        public async Task<Response> PostAsync(Uri uri, TRequest resource)
         {
             var content = this.SerializeContent(resource);
             this.eventConfig?.InvokeOnBeforePost(content);
@@ -111,12 +111,12 @@ namespace RestKit
             }
         }
 
-        public Response<TReply> Put(Uri uri, TRequest resource)
+        public Response Put(Uri uri, TRequest resource)
         {
             return this.PutAsync(uri, resource).Result;
         }
 
-        public async Task<Response<TReply>> PutAsync(Uri uri, TRequest resource)
+        public async Task<Response> PutAsync(Uri uri, TRequest resource)
         {
             var content = this.SerializeContent(resource);
             this.eventConfig?.InvokeOnBeforePut(content);
@@ -126,12 +126,12 @@ namespace RestKit
             }
         }
 
-        public Response<TReply> Delete(Uri uri)
+        public Response Delete(Uri uri)
         {
             return this.DeleteAsync(uri).Result;
         }
 
-        public async Task<Response<TReply>> DeleteAsync(Uri uri)
+        public async Task<Response> DeleteAsync(Uri uri)
         {
             this.eventConfig?.InvokeOnBeforeDelete();
             using (var reply = await this.client.DeleteAsync(uri).ConfigureAwait(false))
@@ -185,17 +185,17 @@ namespace RestKit
             return new StreamContent(s);
         }
 
-        private bool TryDeserialize(Stream data, string mediaType, out TReply reply)
-        {
-            reply = default(TReply);
-            return this.handlerHead?.TryDeserialize(data, mediaType, out reply) != true;
-        }
+        ////private bool TryDeserialize(Stream data, string mediaType, out TReply reply)
+        ////{
+        ////    reply = default(TReply);
+        ////    return this.handlerHead?.TryDeserialize(data, mediaType, out reply) != true;
+        ////}
 
-        private Response<TReply> HandleResult(HttpResponseMessage reply)
+        private Response HandleResult(HttpResponseMessage reply)
         {
             var statusCode = reply.StatusCode;
             this.eventConfig?.InvokeReplyActions(reply);
-            return new Response<TReply>(reply, this.handlerHead);
+            return new Response(reply, this.handlerHead);
 
             // TODO: handle 100 and 300 codes, and allow for retry via RetryPolicy, with no touch defaults
             ////if (this.canDeserialize(reply))

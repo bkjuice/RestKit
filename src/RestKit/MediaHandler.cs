@@ -3,21 +3,21 @@ using System.IO;
 
 namespace RestKit
 {
-    public class MediaHandler<TReply>
+    public class MediaHandler
     {
-        private Func<Stream, TReply> handler;
+        private Func<Stream, object> handler;
 
         private string mediaType;
 
-        public MediaHandler(Func<Stream, TReply> handler, string mediaType)
+        public MediaHandler(Func<Stream, object> handler, string mediaType)
         {
             this.handler = handler;
             this.mediaType = mediaType;
         }
 
-        public MediaHandler<TReply> Next;
+        public MediaHandler Next;
 
-        public bool TryDeserialize(Stream content, string mediaType, out TReply reply)
+        public bool TryDeserialize(Stream content, string mediaType, out object reply)
         {
             if (mediaType.Equals(this.mediaType, StringComparison.OrdinalIgnoreCase))
             {
@@ -25,7 +25,7 @@ namespace RestKit
                 return true;
             }
 
-            reply = default(TReply);
+            reply = null;
             return this.Next?.TryDeserialize(content, mediaType, out reply) == true;
         }
     }

@@ -84,6 +84,7 @@
     <Compile Include="ResourceOfTTests.cs" />
     <Compile Include="MediaHandlerTests.cs" />
     <Compile Include="ResourceBehaviorTests.cs" />
+    <Compile Include="RepresentationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

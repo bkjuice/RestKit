@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Net.Http;
 
 namespace RestKit
 {
-    public interface IMediaConfiguration<out TRequest, TReply>
+    public interface IMediaConfiguration<out TRequest>
     {
         void SetSerializer(Action<TRequest, Stream> serializerAction);
 
-        void AddDeserializer(Func<Stream, TReply> deserializerFunc, string mediaType);
+        void AddDeserializer<TReply>(Func<Stream, TReply> deserializerFunc, string mediaType);
     }
 }
