@@ -4,17 +4,14 @@
     {
         public static readonly XmlConventions Default = new XmlConventions()
         {
-            GroupSuffix = "Group",
             AttributeContainerName = "Attributes",
-            ComplexElementValueName = "Value",
+            ElementValueName = "Value",
             Casing = CasingConvention.AsIs
         };
 
-        public string GroupSuffix { get; set; }
-
         public string AttributeContainerName { get; set; }
 
-        public string ComplexElementValueName { get; set; }
+        public string ElementValueName { get; set; }
 
         public CasingConvention Casing { get; set; }
     }

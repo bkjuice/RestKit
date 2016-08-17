@@ -135,19 +135,67 @@ namespace RestKit.Tests
             string attr1 = root.Attributes.attr1;
             attr1.Should().Be("rootAttribute");
 
-            string child1 = root.aNode.ChildGroup[0].Value;
+            string child1 = root.aNode.Child[0].Value;
             child1.Should().Be("elementValue1");
 
-            string child2 = root.aNode.ChildGroup[1].Value;
+            string child2 = root.aNode.Child[1].Value;
             child2.Should().Be("elementValue2");
 
-            string child3 = root.aNode.ChildGroup[2].Value;
+            string child3 = root.aNode.Child[2].Value;
             child3.Should().Be("elementValue3");
 
-            string value3 = root.aNode.ChildGroup[2].Attributes.value;
+            string value3 = root.aNode.Child[2].Attributes.value;
             value3.Should().Be("attributeValue3");
 
-            string simple = root.anotherNode;
+            string simple = root.anotherNode.Value;
+            simple.Should().Be("simple");
+        }
+
+        [TestMethod]
+        public void XmlContentAsDynamicWorksWithMixedComplexContent()
+        {
+            var xmlData =
+            @"<root attr1='rootAttribute'>
+                <aNode>
+                    <Child value='attributeValue1'>elementValue1</Child>
+                    <Child value='attributeValue2'>elementValue2</Child>
+                    <Child value='attributeValue3'>elementValue3</Child>
+                    <BadSeed>Garg</BadSeed>
+                    <BadSeed>Blarg</BadSeed>
+                    <Child>elementValue4</Child>
+                </aNode>
+                <anotherNode>simple</anotherNode>
+            </root>";
+
+            var response = HttpStatusCode.OK.CreateResponseMessage(xmlData.CreateStream(), "text/xml");
+            var representation = new Representation(response);
+            var root = representation.GetContentAsXml();
+
+            string attr1 = root.Attributes.attr1;
+            attr1.Should().Be("rootAttribute");
+
+            string child1 = root.aNode.Child[0].Value;
+            child1.Should().Be("elementValue1");
+
+            string child2 = root.aNode.Child[1].Value;
+            child2.Should().Be("elementValue2");
+
+            string child3 = root.aNode.Child[2].Value;
+            child3.Should().Be("elementValue3");
+
+            string value3 = root.aNode.Child[2].Attributes.value;
+            value3.Should().Be("attributeValue3");
+
+            string value4 = root.aNode.Child[3].Value;
+            value4.Should().Be("elementValue4");
+
+            string bad1 = root.aNode.BadSeed[0].Value;
+            bad1.Should().Be("Garg");
+
+            string bad2 = root.aNode.BadSeed[1].Value;
+            bad2.Should().Be("Blarg");
+
+            string simple = root.anotherNode.Value;
             simple.Should().Be("simple");
         }
 
@@ -161,7 +209,7 @@ namespace RestKit.Tests
             var representation = new Representation(response);
             var root = representation.GetContentAsXml();
 
-            string simple = root;
+            string simple = root.Value;
             simple.Should().Be("simple");
         }
 
@@ -184,8 +232,7 @@ namespace RestKit.Tests
             {
                 AttributeContainerName = "Attrs",
                 Casing = CasingConvention.Pascalish,
-                ComplexElementValueName = "Val",
-                GroupSuffix = "s",
+                ElementValueName = "Val",
             };
 
             var root = representation.GetContentAsXml(conventions);
@@ -193,19 +240,19 @@ namespace RestKit.Tests
             string attr1 = root.Attrs.Attr1;
             attr1.Should().Be("rootAttribute");
 
-            string child1 = root.ANode.Childs[0].Val;
+            string child1 = root.ANode.Child[0].Val;
             child1.Should().Be("elementValue1");
 
-            string child2 = root.ANode.Childs[1].Val;
+            string child2 = root.ANode.Child[1].Val;
             child2.Should().Be("elementValue2");
 
-            string child3 = root.ANode.Childs[2].Val;
+            string child3 = root.ANode.Child[2].Val;
             child3.Should().Be("elementValue3");
 
-            string value3 = root.ANode.Childs[2].Attrs.Value;
+            string value3 = root.ANode.Child[2].Attrs.Value;
             value3.Should().Be("attributeValue3");
 
-            string simple = root.AnotherNode;
+            string simple = root.AnotherNode.Val;
             simple.Should().Be("simple");
         }
     }

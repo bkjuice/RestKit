@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -11,13 +10,15 @@ namespace RestKit
     {
         public static dynamic ToDynamic(this XElement node, XmlConventions conventions)
         {
-            if (!(node.HasAttributes || node.HasElements))
-            {
-                return node.Value;
-            }
-
             var expando = new ExpandoObject();
             var bucket = (IDictionary<string, object>)expando;
+
+            if (!(node.HasAttributes || node.HasElements))
+            {
+                bucket.Add(conventions.ElementValueName, node.Value);
+                return expando;
+            }
+
             var casing = conventions.Casing;
             if (node.HasAttributes)
             {
@@ -40,7 +41,7 @@ namespace RestKit
                     {
                         var items = new List<object>();
                         items.AddRange(group.Select(e => e.ToDynamic(conventions)));
-                        bucket.Add(group.Key.AsCase(casing) + conventions.GroupSuffix, items);
+                        bucket.Add(group.Key.AsCase(casing), items);
                     }
                     else
                     {
@@ -50,7 +51,7 @@ namespace RestKit
             }
             else
             {
-                bucket.Add(conventions.ComplexElementValueName, node.Value);
+                bucket.Add(conventions.ElementValueName, node.Value);
             }
 
             return expando;
