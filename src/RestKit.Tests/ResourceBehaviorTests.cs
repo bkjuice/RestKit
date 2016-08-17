@@ -13,7 +13,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.InternalServerError.SetupValidStringlyTypedStub();
             var result  = resource.Get(new Uri("http://nowhere.com"));
-            result.Status.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+            result.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
 
         [TestMethod]
@@ -21,7 +21,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.InternalServerError.SetupValidStringlyTypedStub();
             var result = resource.Post(new Uri("http://nowhere.com"), "test");
-            result.Status.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+            result.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
 
         [TestMethod]
@@ -29,7 +29,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.InternalServerError.SetupValidStringlyTypedStub();
             var result = resource.Put(new Uri("http://nowhere.com"), "test");
-            result.Status.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+            result.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
 
         [TestMethod]
@@ -37,7 +37,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.InternalServerError.SetupValidStringlyTypedStub();
             var result = resource.Delete(new Uri("http://nowhere.com"));
-            result.Status.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+            result.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
 
         [TestMethod]
@@ -45,7 +45,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.NoContent.SetupValidStringlyTypedStub();
             var result = resource.Get(new Uri("http://nowhere.com"));
-            result.HasContent.Should().BeFalse();
+            result.MayHaveContent.Should().BeFalse();
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub(string.Empty);
             var result = resource.Get(new Uri("http://nowhere.com"));
-            result.HasContent.Should().BeFalse();
+            result.MayHaveContent.Should().BeFalse();
         }
     }
 }

@@ -6,11 +6,11 @@ namespace RestKit
     {
         public ResourceStatus()
         {
-            this.StatusReason = string.Empty;
+            this.ReasonPhrase = string.Empty;
         }
 
         public HttpStatusCode StatusCode { get; set; }
 
-        public string StatusReason { get; set; }
+        public string ReasonPhrase { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -11,36 +12,49 @@ namespace RestKit.Tests
 {
     public static class HandlerStubs
     {
-        public static Mock<HttpMessageHandler> BuildHandler(
+        public static HttpMessageHandler BuildHandler(
             this HttpStatusCode expectedStatus,
             HttpContent expectedContent = null,
-            Action<HttpRequestMessage, CancellationToken> assert = null)
+            Action<HttpRequestMessage> requestCallback = null)
         {
-            var handler = new Mock<HttpMessageHandler>();
-
-            handler.Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>())
-            .Returns(
-                Task.FromResult(new HttpResponseMessage(expectedStatus) { Content = expectedContent ?? new StringContent(string.Empty) }))
-            .Callback<HttpRequestMessage, CancellationToken>(
-                (r, c) =>
-                {
-                    assert?.Invoke(r, c);
-                });
-
+            var handler = new StubHandler();
+            handler.ExpectedStatus = expectedStatus;
+            handler.ExpectedContent = expectedContent;
+            handler.RequestCallback = requestCallback;
             return handler;
         }
 
         public static Resource<string> SetupValidStringlyTypedStub(this HttpStatusCode expectedStatus, string content = "test content")
         {
-            var handler = expectedStatus.BuildHandler(new StringContent(content));
-            var resource = new Resource<string>(handler.Object);
-            resource.SetDeserializer(s => new StreamReader(s).ReadToEnd());
+            return expectedStatus.SetupValidStringlyTypedStub(new StringContent(content, Encoding.UTF8, "text/plain"));
+        }
+
+        public static Resource<string> SetupValidStringlyTypedStub(this HttpStatusCode expectedStatus, HttpContent content)
+        {
+            var handler = expectedStatus.BuildHandler(content);
+            var resource = new Resource<string>(handler);
+            resource.AddDeserializer(s => new StreamReader(s).ReadToEnd(), "text/plain");
             resource.SetSerializer((s, io) => new StreamWriter(io).Write(s));
             return resource;
+        }
+
+        private class StubHandler : HttpMessageHandler
+        {
+            public HttpStatusCode ExpectedStatus { get; set; }
+
+            public HttpContent ExpectedContent { get; set; }
+
+            public Action<HttpRequestMessage> RequestCallback { get; set; }
+
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(
+                    new HttpResponseMessage(this.ExpectedStatus)
+                    {
+                        Content = this.ExpectedContent ?? new StringContent(string.Empty),
+                        RequestMessage = request
+                    });
+            }
         }
     }
 }

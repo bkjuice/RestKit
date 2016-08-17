@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization.Json;
+using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 
 namespace RestKit
@@ -82,7 +83,7 @@ namespace RestKit
 
         private static Resource<T> Configure<T>(Resource<T> provider, Action<T, Stream> serializer, Func<Stream, T> deserializer, string mediaType)
         {
-            provider.SetDeserializer(deserializer);
+            provider.AddDeserializer(deserializer, mediaType);
             provider.SetSerializer(serializer);
             provider.Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
             return provider;
@@ -90,8 +91,11 @@ namespace RestKit
 
         private static T DeserializeJson<T>(Stream json)
         {
-            var serializer = new DataContractJsonSerializer(typeof(T));
-            return (T)serializer.ReadObject(json);
+            var serializer = new JavaScriptSerializer();
+            using (var reader = new StreamReader(json))
+            {
+                return (T)serializer.Deserialize(reader.ReadToEnd(), typeof(T));
+            }
         }
 
         private static void SerializeJson<T>(T resource, Stream output)
