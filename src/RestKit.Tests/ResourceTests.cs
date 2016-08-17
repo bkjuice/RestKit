@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RestKit.Tests.Content;
@@ -81,7 +82,7 @@ namespace RestKit.Tests
         [TestMethod]
         public void XmlReturnsValidResourceInstance()
         {
-            Resource.Xml<SimpleItem>().Should().NotBeNull();
+            Resource.Xml().Should().NotBeNull();
         }
 
         [TestMethod]
@@ -91,7 +92,20 @@ namespace RestKit.Tests
                 expectedContent: new StringContent("<SimpleItem><Value>test</Value></SimpleItem>"),
                 requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
 
-            Resource.Xml<SimpleItem>(handler).Get(new Uri("http://nowhere.com"));
+            Resource.Xml(handler).Get(new Uri("http://nowhere.com"));
+        }
+
+        [TestMethod]
+        public void XmlResourceCanBeDeserializedAsXml()
+        {
+            var handler = HttpStatusCode.OK.BuildHandler(
+                expectedContent: new StringContent("<SimpleItem><Value>test</Value></SimpleItem>", Encoding.UTF8, "text/xml"),
+                requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
+
+            // TODO: GET AND DELETE, no type parameter!
+            var representation = Resource.Xml(handler).Get(new Uri("http://nowhere.com"));
+            var result = representation.Deserialize<SimpleItem>();
+            result.Value.Should().Be("test");
         }
 
         [TestMethod]
@@ -184,6 +198,17 @@ namespace RestKit.Tests
                 expectedContent: new StringContent("result"),
                 requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
             Resource.Text(handler).Get(new Uri("http://nowhere.com"));
+        }
+
+        [TestMethod]
+        public void TextRepresentationCanBeReadAsString()
+        {
+            var handler = HttpStatusCode.OK.BuildHandler(
+                expectedContent: new StringContent("result"),
+                requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
+
+            var representation = Resource.Text(handler).Get(new Uri("http://nowhere.com"));
+            representation.GetContentAsString().Should().Be("result");
         }
 
         [TestMethod]

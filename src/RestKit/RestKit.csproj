@@ -143,6 +143,7 @@
   <ItemGroup>
     <Compile Include="CasingConvention.cs" />
     <Compile Include="ContentHandlers.cs" />
+    <Compile Include="IHttpResource.cs" />
     <Compile Include="IMediaConfiguration.cs" />
     <Compile Include="IEventConfiguration.cs" />
     <Compile Include="MediaChain.cs" />

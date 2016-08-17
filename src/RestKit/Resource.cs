@@ -21,6 +21,16 @@ namespace RestKit
             ServicePointManager.SecurityProtocol = protocolKind;
         }
 
+        public static IHttpResource Json()
+        {
+            return ConfigureJson(new Resource<object>());
+        }
+
+        public static IHttpResource Json(HttpMessageHandler handler)
+        {
+            return ConfigureJson(new Resource<object>(handler));
+        }
+
         public static IHttpResource<T> Json<T>()
         {
             return ConfigureJson(new Resource<T>());
@@ -29,6 +39,16 @@ namespace RestKit
         public static IHttpResource<T> Json<T>(HttpMessageHandler handler)
         {
             return ConfigureJson(new Resource<T>(handler));
+        }
+
+        public static IHttpResource Xml()
+        {
+            return ConfigureXml(new Resource<object>());
+        }
+
+        public static IHttpResource Xml(HttpMessageHandler handler)
+        {
+            return ConfigureXml(new Resource<object>(handler));
         }
 
         public static IHttpResource<T> Xml<T>()
@@ -82,7 +102,9 @@ namespace RestKit
 
         private static Resource<T> Configure<T>(Resource<T> provider, Action<T, Stream> serializer, Func<Stream, T> deserializer, string mediaType)
         {
-            provider.AddDeserializer(deserializer, mediaType);
+            // TODO: Make the deserializer a generic method also...such that type parameters are deferred until read...
+            // this separates representation from content. 
+            provider.AddMediaDeserializer(deserializer, mediaType);
             provider.SetSerializer(serializer);
             provider.Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
             return provider;

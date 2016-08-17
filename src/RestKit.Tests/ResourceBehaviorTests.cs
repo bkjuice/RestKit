@@ -41,19 +41,19 @@ namespace RestKit.Tests
         }
 
         [TestMethod]
-        public void ResourceHasContentIsFalseFor204Status()
+        public void ResourceHasNoContentIsTrueFor204Status()
         {
             var resource = HttpStatusCode.NoContent.SetupValidStringlyTypedStub();
             var result = resource.Get(new Uri("http://nowhere.com"));
-            result.MayHaveContent.Should().BeFalse();
+            result.HasNoContent.Should().BeTrue();
         }
 
         [TestMethod]
-        public void ResourceHasContentIsFalseFor200StatusWithEmptyContent()
+        public void ResourceHasNoContentIsTrueFor200StatusWithEmptyContent()
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub(string.Empty);
             var result = resource.Get(new Uri("http://nowhere.com"));
-            result.MayHaveContent.Should().BeFalse();
+            result.HasNoContent.Should().BeTrue();
         }
     }
 }

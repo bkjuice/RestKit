@@ -1,16 +1,53 @@
 ﻿using System;
-using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Xml;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RestKit.Tests.Content;
 
 namespace RestKit.Tests
 {
     [TestClass]
     public class RepresentationTests
     {
+        [TestMethod]
+        public void HasNoContentIsTrueForStatus204()
+        {
+            var response = HttpStatusCode.NoContent.CreateResponseMessage("".CreateStream(), "application/json");
+            var representation = new Representation(response);
+            representation.HasNoContent.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void HasNoContentIsTrueForEmptyContentStatus200()
+        {
+            var response = HttpStatusCode.OK.CreateResponseMessage("".CreateStream(), "application/json");
+            var representation = new Representation(response);
+            representation.HasNoContent.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void DisposeWillDisposeUnderlyingMessage()
+        {
+            var response = HttpStatusCode.OK.CreateResponseMessage("{ \"test\":\"value\"}".CreateStream(), "application/json");
+            var representation = new Representation(response);
+            representation.Dispose();
+
+            Action test = () => { var s = representation.Message.Content.ReadAsStreamAsync().Result; };
+            test.ShouldThrow<ObjectDisposedException>();
+        }
+
+        [TestMethod]
+        public void DeserializeThrowsInvalidOperationExceptionWhenCanSerializeIsFalse()
+        {
+            var response = HttpStatusCode.OK.CreateResponseMessage("{ \"test\":\"value\"}".CreateStream(), "application/json");
+            var representation = new Representation(response);
+            representation.CanDeserialize.Should().BeFalse();
+
+            Action test = () => representation.Deserialize<SimpleItem>();
+            test.ShouldThrow<InvalidOperationException>();
+        }
+
         [TestMethod]
         public void RepresentationIdentifiesUnexpectedContent()
         {
@@ -254,6 +291,46 @@ namespace RestKit.Tests
 
             string simple = root.AnotherNode.Val;
             simple.Should().Be("simple");
+        }
+
+        [TestMethod]
+        public void XmlReaderHasExpectedNodes()
+        {
+            var xmlData =
+             @"<root attr1='rootAttribute'>
+                <aNode>
+                    <Child value='attributeValue1'>elementValue1</Child>
+                    <Child value='attributeValue2'>elementValue2</Child>
+                    <Child value='attributeValue3'>elementValue3</Child>
+                </aNode>
+                <anotherNode>simple</anotherNode>
+            </root>";
+
+            var response = HttpStatusCode.OK.CreateResponseMessage(xmlData.CreateStream(), "text/xml");
+            var representation = new Representation(response);
+            var reader = representation.GetContentAsXmlReader();
+            reader.MoveToContent().Should().Be(XmlNodeType.Element);
+            // Trust the XmlReader works from here...
+        }
+
+        [TestMethod]
+        public void XDocumentHasExpectedNodes()
+        {
+            var xmlData =
+             @"<root attr1='rootAttribute'>
+                <aNode>
+                    <Child value='attributeValue1'>elementValue1</Child>
+                    <Child value='attributeValue2'>elementValue2</Child>
+                    <Child value='attributeValue3'>elementValue3</Child>
+                </aNode>
+                <anotherNode>simple</anotherNode>
+            </root>";
+
+            var response = HttpStatusCode.OK.CreateResponseMessage(xmlData.CreateStream(), "text/xml");
+            var representation = new Representation(response);
+            var xdoc = representation.GetContentAsXDocument();
+            xdoc.Element("root").Should().NotBeNull();
+            // trust XDocument works from here...
         }
     }
 }

@@ -42,13 +42,13 @@ namespace RestKit
 
         public string ReasonPhrase { get; set; }
 
-        public bool MayHaveContent
+        public bool HasNoContent
         {
             get
             {
                 return
-                    this.StatusCode != HttpStatusCode.NoContent &&
-                    (
+                    this.StatusCode == HttpStatusCode.NoContent ||
+                    !(
                         this.Message.Content?.Headers?.ContentLength > 0 ||
                         this.Message.Headers?.TransferEncodingChunked == true
                     );

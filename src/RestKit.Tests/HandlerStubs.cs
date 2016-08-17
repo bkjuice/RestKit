@@ -34,7 +34,7 @@ namespace RestKit.Tests
         {
             var handler = expectedStatus.BuildHandler(content);
             var resource = new Resource<string>(handler);
-            resource.AddDeserializer(s => new StreamReader(s).ReadToEnd(), "text/plain");
+            resource.AddMediaDeserializer(s => new StreamReader(s).ReadToEnd(), "text/plain");
             resource.SetSerializer((s, io) => new StreamWriter(io).Write(s));
             return resource;
         }

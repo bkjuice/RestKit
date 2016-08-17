@@ -62,7 +62,7 @@ namespace RestKit
             this.onSerialize = serializerAction;
         }
 
-        public void AddDeserializer<TReply>(Func<Stream, TReply> deserializerFunc, string mediaType)
+        public void AddMediaDeserializer<TReply>(Func<Stream, TReply> deserializerFunc, string mediaType)
         {
             if (this.mediaChain == null)
             {
