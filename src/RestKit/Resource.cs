@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization.Json;
-using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 
 namespace RestKit
@@ -13,7 +12,7 @@ namespace RestKit
     {
         public const string ApplicationJson = "application/json";
 
-        public const string ApplicationXml = "application/xml";
+        public const string TextXml = "text/xml";
 
         public const string TextPlain = "text/plain";
 
@@ -69,7 +68,7 @@ namespace RestKit
 
         private static Resource<T> ConfigureXml<T>(Resource<T> resource)
         {
-            return Configure(resource, SerializeXml, DeserializeXml<T>, ApplicationXml);
+            return Configure(resource, SerializeXml, DeserializeXml<T>, TextXml);
         }
 
         private static Resource<string> ConfigureText(Resource<string> resource)
@@ -91,10 +90,10 @@ namespace RestKit
 
         private static T DeserializeJson<T>(Stream json)
         {
-            var serializer = new JavaScriptSerializer();
+            var serializer = new DataContractJsonSerializer(typeof(T));
             using (var reader = new StreamReader(json))
             {
-                return (T)serializer.Deserialize(reader.ReadToEnd(), typeof(T));
+                return (T)serializer.ReadObject(json);
             }
         }
 

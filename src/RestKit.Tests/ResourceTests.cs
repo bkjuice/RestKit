@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RestKit.Tests.Content;
@@ -129,10 +130,15 @@ namespace RestKit.Tests
                 expectedContent: new StringContent("{}"),
                 requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
 
-            // http://stackoverflow.com/questions/4559991/any-way-to-make-datacontractjsonserializer-serialize-dictionaries-properly
-            // http://stackoverflow.com/questions/14980973/deserialize-json-to-dictionary-with-datacontractjsonserializer
-            // http://stackoverflow.com/questions/13631208/deserializing-a-json-object-hierarchy-into-a-hierarchy-of-dictionarystring-obj/13631324#13631324
+            // TODO: Type qualifier for get and delete make no sense...
             Resource.Json<string>(handler).Get(new Uri("http://nowhere.com"));
+        }
+
+        [TestMethod]
+        public void JsonResourceInvokesDelete()
+        {
+            var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Delete));
+            Resource.Json<string>(handler).Delete(new Uri("http://nowhere.com"));
         }
 
         [TestMethod]
@@ -150,10 +156,19 @@ namespace RestKit.Tests
         }
 
         [TestMethod]
-        public void JsonResourceInvokesDelete()
+        public void JsonResourceDeserializesWithDataMemberMarkup()
         {
-            var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Delete));
-            Resource.Json<string>(handler).Delete(new Uri("http://nowhere.com"));
+            var content = new StreamContent("{ \"value\":\"test\"}".CreateStream());
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var handler = HttpStatusCode.OK.BuildHandler(
+                expectedContent: content,
+                requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
+
+            var representation = Resource.Json<SimpleItem>(handler).Get(new Uri("http://nowhere.com"));
+
+            representation.CanDeserialize.Should().BeTrue();
+            var data = representation.Deserialize<SimpleItem>();
+            data.Value.Should().Be("test");
         }
 
         [TestMethod]

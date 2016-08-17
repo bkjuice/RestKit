@@ -18,7 +18,7 @@ namespace RestKit.IntegrationTests
         public void UrlEchoGet500()
         {
             var result = Resource.Text().Get(new Uri("http://urlecho.appspot.com/echo?status=500"));
-            result.MediaIsExpected.Should().BeFalse();
+            result.IsUnexpectedMediaType.Should().BeTrue();
             result.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
 

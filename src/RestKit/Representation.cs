@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Xml;
 using System.Xml.Linq;
@@ -13,25 +14,24 @@ namespace RestKit
 {
     public sealed class Representation : IDisposable
     {
-        private MediaHandler mediaHandler;
+        private const int defaultBufferSize = 4096;
+
+        private IMediaHandler mediaHandler;
 
         private Lazy<ReadOnlySeekableStream> contentCopy;
 
-        private int defaultBufferSize;
-
-        public Representation(HttpResponseMessage reply, MediaHandler mediaHandler, int defaultBufferSize = 4096)
+        public Representation(HttpResponseMessage reply, MediaChain mediaHandlers = null)
         {
             Contract.Requires<ArgumentNullException>(reply != null);
 
             this.Message = reply;
-            this.mediaHandler = mediaHandler;
-            this.defaultBufferSize = defaultBufferSize;
             this.contentCopy = new Lazy<ReadOnlySeekableStream>(this.InitializeRawContent);
 
             var media = reply.Content?.Headers?.ContentType?.MediaType;
             var accepts = reply.RequestMessage?.Headers?.Accept;
-            this.MediaType = media;
-            this.MediaIsExpected = accepts?.FirstOrDefault(h => h.MediaType.Equals(media, StringComparison.OrdinalIgnoreCase)) != null;
+            this.mediaHandler = mediaHandlers?.GetHandlerFor(media);
+            this.MediaType = media ?? string.Empty;
+            this.IsUnexpectedMediaType = accepts?.FirstOrDefault(h => h.MediaType.Equals(media, StringComparison.OrdinalIgnoreCase)) == null;
             this.StatusCode = reply.StatusCode;
             this.ReasonPhrase = reply.ReasonPhrase;
         }
@@ -55,36 +55,46 @@ namespace RestKit
             }
         }
 
-        public bool MediaIsExpected { get; private set; }
+        public bool IsUnexpectedMediaType { get; private set; }
 
         public string MediaType { get; private set; }
 
-        public bool TryDeserialize<TReply>(out TReply reply)
+        public bool CanDeserialize
         {
-            reply = default(TReply);
-            object output = null;
-            if( this.mediaHandler?.TryDeserialize(this.GetContentAsStream(), this.MediaType, out output) == true)
+            get
             {
-                reply = (TReply)output;
-                return true;
+                return this.mediaHandler != null;
+            }
+        }
+
+        public void Dispose()
+        {
+            this.Message.Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        public TReply Deserialize<TReply>()
+        {
+            if (this.mediaHandler == null)
+            {
+                throw new InvalidOperationException($"The representation cannot deserialize because there is no defined handler for media type '{ this.MediaType }'. Ensure a deserializer that handles this media type representation is added to the resource before executing the Http method.");
             }
 
-            return false;
+            return (TReply)this.mediaHandler.Deserialize(this.GetContentAsStream());
         }
 
         public XElement GetContentAsXElement()
         {
             return XElement.Load(this.GetContentAsStream(), LoadOptions.PreserveWhitespace);
         }
-
         public XDocument GetContentAsXDocument()
         {
             return XDocument.Load(this.GetContentAsStream(), LoadOptions.PreserveWhitespace);
         }
 
-        public dynamic GetContentAsXml()
+        public dynamic GetContentAsXml(XmlConventions conventions = null)
         {
-            return this.GetContentAsXElement().ToDynamic();
+            return this.GetContentAsXElement().ToDynamic(conventions ?? XmlConventions.Default);
         }
 
         public XmlReader GetContentAsXmlReader()
@@ -97,9 +107,9 @@ namespace RestKit
             return new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(this.GetContentAsString());
         }
 
-        public dynamic GetContentAsJson()
+        public dynamic GetContentAsJson(CasingConvention casing = CasingConvention.AsIs)
         {
-            return this.GetContentAsJsonMap().ToDynamic();
+            return this.GetContentAsJsonMap().ToDynamic(casing);
         }
 
         public Stream GetContentAsStream()
@@ -116,15 +126,10 @@ namespace RestKit
             }
         }
 
-        public void Dispose()
-        {
-            this.Message.Dispose();
-            GC.SuppressFinalize(this);
-        }
-
         private ReadOnlySeekableStream InitializeRawContent()
         {
-            var s = new MemoryStream(this.defaultBufferSize);
+            // TODO: Unwind this to allow async...forward only reading...
+            var s = new MemoryStream(defaultBufferSize);
             this.Message.Content?.ReadAsStreamAsync().ConfigureAwait(false).GetAwaiter().GetResult().CopyTo(s);
             return new ReadOnlySeekableStream(s);
         }

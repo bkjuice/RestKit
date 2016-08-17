@@ -13,9 +13,7 @@ namespace RestKit
 
         private Action<TRequest, Stream> onSerialize;
 
-        private MediaHandler handlerHead;
-
-        private MediaHandler handlerTail;
+        private MediaChain mediaChain;
 
         public Resource() : this(new HttpClient())
         {
@@ -66,17 +64,13 @@ namespace RestKit
 
         public void AddDeserializer<TReply>(Func<Stream, TReply> deserializerFunc, string mediaType)
         {
-            var handler = new MediaHandler(s => deserializerFunc(s), mediaType);
-            if (handlerHead == null)
+            if (this.mediaChain == null)
             {
-                this.handlerHead = handler;
-                this.handlerTail = handler;
+                this.mediaChain = new MediaChain();
             }
-            else
-            {
-                this.handlerTail.Next = handler;
-                this.handlerTail = handler;
-            }
+
+            var handler = new MediaHandler<TReply>(s => deserializerFunc(s), mediaType);
+            this.mediaChain.AddHandler(handler);
         }
 
         public Representation Get(Uri uri)
@@ -87,12 +81,7 @@ namespace RestKit
         public async Task<Representation> GetAsync(Uri uri)
         {
             this.eventConfig?.InvokeOnBeforeGet();
-
-            var accepts = this.client.DefaultRequestHeaders.Accept;
-            using (var reply = await this.client.GetAsync(uri).ConfigureAwait(false))
-            {
-                return this.HandleResult(reply);
-            }
+            return this.HandleResult(await this.client.GetAsync(uri).ConfigureAwait(false));
         }
 
         public Representation Post(Uri uri, TRequest resource)
@@ -104,10 +93,7 @@ namespace RestKit
         {
             var content = this.SerializeContent(resource);
             this.eventConfig?.InvokeOnBeforePost(content);
-            using (var reply = await this.client.PostAsync(uri, content).ConfigureAwait(false))
-            {
-                return this.HandleResult(reply);
-            }
+            return this.HandleResult(await this.client.PostAsync(uri, content).ConfigureAwait(false));
         }
 
         public Representation Put(Uri uri, TRequest resource)
@@ -119,10 +105,7 @@ namespace RestKit
         {
             var content = this.SerializeContent(resource);
             this.eventConfig?.InvokeOnBeforePut(content);
-            using (var reply = await this.client.PutAsync(uri, content).ConfigureAwait(false))
-            {
-                return this.HandleResult(reply);
-            }
+            return this.HandleResult(await this.client.PutAsync(uri, content).ConfigureAwait(false));
         }
 
         public Representation Delete(Uri uri)
@@ -133,10 +116,7 @@ namespace RestKit
         public async Task<Representation> DeleteAsync(Uri uri)
         {
             this.eventConfig?.InvokeOnBeforeDelete();
-            using (var reply = await this.client.DeleteAsync(uri).ConfigureAwait(false))
-            {
-                return this.HandleResult(reply);
-            }
+            return this.HandleResult(await this.client.DeleteAsync(uri).ConfigureAwait(false));
         }
 
         public void CancelPendingRequests()
@@ -178,7 +158,7 @@ namespace RestKit
             // TODO: handle 100 and 300 codes, and allow for retry via RetryPolicy, with no touch defaults
             var statusCode = reply.StatusCode;
             this.eventConfig?.InvokeReplyActions(reply);
-            return new Representation(reply, this.handlerHead);
+            return new Representation(reply, this.mediaChain);
         }
     }
 }

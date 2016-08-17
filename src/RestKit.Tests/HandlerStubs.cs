@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,6 +37,35 @@ namespace RestKit.Tests
             resource.AddDeserializer(s => new StreamReader(s).ReadToEnd(), "text/plain");
             resource.SetSerializer((s, io) => new StreamWriter(io).Write(s));
             return resource;
+        }
+
+        public static HttpResponseMessage CreateResponseMessage(this HttpStatusCode status, Stream data, string mediaType, string acceptedType = null)
+        {
+            acceptedType = acceptedType ?? mediaType;
+            var response = new HttpResponseMessage(status);
+            response.Content = CreateContent(data, mediaType);
+            response.RequestMessage = new HttpRequestMessage();
+            response.RequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(acceptedType));
+            return response;
+        }
+
+        public static HttpContent CreateContent(this Stream data, string mediaType)
+        {
+            var content = new StreamContent(data);
+            content.Headers.ContentType = new MediaTypeHeaderValue(mediaType);
+            content.Headers.ContentLength = data.Length;
+            return content;
+        }
+
+        public static Stream CreateStream(this string data)
+        {
+            var s = new MemoryStream();
+            var writer = new StreamWriter(s);
+            writer.Write(data);
+            writer.Flush();
+
+            s.Position = 0;
+            return s;
         }
 
         private class StubHandler : HttpMessageHandler

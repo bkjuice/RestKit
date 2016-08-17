@@ -32,14 +32,6 @@ namespace RestKit.Tests
             new Resource<string>(new Mock<HttpMessageHandler>().Object).EventConfig.Client.Should().NotBeNull();
         }
 
-        ////[TestMethod]
-        ////public void ResourceGetThrowsInvalidOperationExceptionWhenDeserializerIsNotSet()
-        ////{
-        ////    var handler = HttpStatusCode.OK.BuildHandler(new StringContent("test"));
-        ////    Action test = () => new Resource<string>(handler).Get(DummyUri);
-        ////    test.ShouldThrow<InvalidOperationException>();
-        ////}
-
         [TestMethod]
         public void ResourceGetDoesNotThrowInvalidOperationExceptionWhenDeserializerIsSet()
         {
