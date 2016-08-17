@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web.Script.Serialization;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace RestKit
 {
@@ -11,7 +15,7 @@ namespace RestKit
     {
         private MediaHandler<T> mediaHandler;
 
-        private Lazy<MemoryStream> contentCopy;
+        private Lazy<ReadOnlySeekableStream> contentCopy;
 
         private int defaultBufferSize;
 
@@ -22,7 +26,7 @@ namespace RestKit
             this.Message = reply;
             this.mediaHandler = mediaHandler;
             this.defaultBufferSize = defaultBufferSize;
-            this.contentCopy = new Lazy<MemoryStream>(this.InitializeRawContent);
+            this.contentCopy = new Lazy<ReadOnlySeekableStream>(this.InitializeRawContent);
 
             var media = reply.Content?.Headers?.ContentType?.MediaType;
             var accepts = reply.RequestMessage?.Headers?.Accept;
@@ -61,6 +65,26 @@ namespace RestKit
             return this.mediaHandler?.TryDeserialize(this.GetContentAsStream(), this.MediaType, out reply) == true;
         }
 
+        public XElement GetContentAsXElement()
+        {
+            return XElement.Load(this.GetContentAsStream());
+        }
+
+        public XmlReader GetContentAsXmlReader()
+        {
+            return new XmlTextReader(this.GetContentAsStream());
+        }
+
+        public Dictionary<string, object> GetContentAsJsonMap()
+        {
+            return new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(this.GetContentAsString());
+        }
+
+        public dynamic GetContentAsJson()
+        {
+            return this.GetContentAsJsonMap().ToExpando();
+        }
+
         public Stream GetContentAsStream()
         {
             this.contentCopy.Value.Position = 0;
@@ -81,12 +105,11 @@ namespace RestKit
             GC.SuppressFinalize(this);
         }
 
-        private MemoryStream InitializeRawContent()
+        private ReadOnlySeekableStream InitializeRawContent()
         {
             var s = new MemoryStream(this.defaultBufferSize);
             this.Message.Content?.ReadAsStreamAsync().ConfigureAwait(false).GetAwaiter().GetResult().CopyTo(s);
-            s.Position = 0;
-            return s;
+            return new ReadOnlySeekableStream(s);
         }
     }
 }

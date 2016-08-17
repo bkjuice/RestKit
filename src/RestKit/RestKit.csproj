@@ -98,10 +98,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContentHandlers.cs" />
     <Compile Include="IHttpResource{TRequest,TReply}.cs" />
     <Compile Include="IMediaConfiguration.cs" />
     <Compile Include="IEventConfiguration.cs" />
     <Compile Include="MediaHandler.cs" />
+    <Compile Include="ReadOnlySeekableStream.cs" />
     <Compile Include="Resource.cs" />
     <Compile Include="ResourceEventConfiguration.cs" />
     <Compile Include="Resource{TRequest,TReply}.cs" />

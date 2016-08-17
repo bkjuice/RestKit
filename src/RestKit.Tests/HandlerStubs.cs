@@ -48,6 +48,7 @@ namespace RestKit.Tests
 
             protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
             {
+                this.RequestCallback?.Invoke(request);
                 return Task.FromResult(
                     new HttpResponseMessage(this.ExpectedStatus)
                     {
