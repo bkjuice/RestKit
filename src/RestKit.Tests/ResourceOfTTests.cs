@@ -17,19 +17,19 @@ namespace RestKit.Tests
         [TestMethod]
         public void ResourceConfigIsNotNullOnGet()
         {
-            new Resource<string>().Events.Should().NotBeNull();
+            new Resource().Events.Should().NotBeNull();
         }
 
         [TestMethod]
         public void ResourceConfigReturnsValidHttpClientForDefaultCtor()
         {
-            new Resource<string>().Client.Should().NotBeNull();
+            new Resource().Client.Should().NotBeNull();
         }
 
         [TestMethod]
         public void ResourceConfigReturnsValidHttpClientForTestableCtor()
         {
-            new Resource<string>(new Mock<HttpMessageHandler>().Object).Client.Should().NotBeNull();
+            new Resource(new Mock<HttpMessageHandler>().Object).Client.Should().NotBeNull();
         }
 
         [TestMethod]
@@ -44,7 +44,7 @@ namespace RestKit.Tests
         public void ResourcePostThrowsInvalidOperationExceptionWhenSerializerIsNotSet()
         {
             var handler = HttpStatusCode.OK.BuildHandler();
-            Action test = () => new Resource<string>(handler).Post(DummyUri, "test");
+            Action test = () => new Resource(handler).Post(DummyUri, "test");
             test.ShouldThrow<InvalidOperationException>();
         }
 
@@ -60,7 +60,7 @@ namespace RestKit.Tests
         public void ResourcePutThrowsInvalidOperationExceptionWhenSerializerIsNotSet()
         {
             var handler = HttpStatusCode.OK.BuildHandler();
-            Action test = () => new Resource<string>(handler).Put(DummyUri, "test");
+            Action test = () => new Resource(handler).Put(DummyUri, "test");
             test.ShouldThrow<InvalidOperationException>();
         }
 
@@ -75,7 +75,7 @@ namespace RestKit.Tests
         [TestMethod]
         public void CancelPendingRequestsDoesNotThrowByDefault()
         {
-            Action test = () => new Resource<string>().CancelPendingRequests();
+            Action test = () => new Resource().CancelPendingRequests();
             test.ShouldNotThrow();
         }
 

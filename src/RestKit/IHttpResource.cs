@@ -11,19 +11,26 @@ namespace RestKit
 
         HttpClient Client { get; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "Get", Justification = "Get is a ubiquitous term in HTTP that will always be qualified by the owning instance.")]
         Representation Get(Uri uri);
+
+        Representation Post<TRequest>(Uri uri, TRequest resource);
+
+        Representation Put<TRequest>(Uri uri, TRequest resource);
 
         Representation Delete(Uri uri);
 
         Task<Representation> GetAsync(Uri uri);
 
+        Task<Representation> PostAsync<TRequest>(Uri uri, TRequest resource);
+
+        Task<Representation> PutAsync<TRequest>(Uri uri, TRequest resource);
+
         Task<Representation> DeleteAsync(Uri uri);
 
         void CancelPendingRequests();
 
-        void AddMediaDeserializer(IMediaHandler handler);
+        void SetMediaSerializer(Action<object, Stream> serializerAction);
 
-        void AddMediaDeserializer<TReply>(Func<Stream, TReply> deserializerFunc, string mediaType);
+        void AddMediaDeserializer(Func<Stream, Type, object> deserializerFunc, string mediaType);
     }
 }

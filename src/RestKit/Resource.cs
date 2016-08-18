@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace RestKit
 {
-    public class Resource<TRequest> : IHttpResource<TRequest>, IRequestBody<TRequest>, IDisposable
+    public class Resource : IHttpResource, IDisposable
     {
         private HttpClient client;
 
         private ResourceEventConfiguration eventConfig;
 
-        private Action<TRequest, Stream> onSerialize;
+        private Action<object, Stream> onSerialize;
 
         private MediaChain mediaChain;
 
@@ -41,14 +41,6 @@ namespace RestKit
             }
         }
 
-        public IRequestBody<TRequest> Body
-        {
-            get
-            {
-                return this;
-            }
-        }
-
         public HttpClient Client
         {
             get
@@ -57,24 +49,19 @@ namespace RestKit
             }
         }
 
-        public void SetSerializer(Action<TRequest, Stream> serializerAction)
+        public void SetMediaSerializer(Action<object, Stream> serializerAction)
         {
             this.onSerialize = serializerAction;
         }
 
-        public void AddMediaDeserializer(IMediaHandler handler)
+        public void AddMediaDeserializer(Func<Stream, Type, object> deserializerFunc, string mediaType)
         {
             if (this.mediaChain == null)
             {
                 this.mediaChain = new MediaChain();
             }
 
-            this.mediaChain.AddHandler(handler);
-        }
-
-        public void AddMediaDeserializer<TReply>(Func<Stream, TReply> deserializerFunc, string mediaType)
-        {
-            this.AddMediaDeserializer(new MediaHandler<TReply>(s => deserializerFunc(s), mediaType));
+            this.mediaChain.AddHandler(new MediaHandler(deserializerFunc, mediaType));
         }
 
         public Representation Get(Uri uri)
@@ -88,24 +75,24 @@ namespace RestKit
             return this.HandleResult(await this.client.GetAsync(uri).ConfigureAwait(false));
         }
 
-        public Representation Post(Uri uri, TRequest resource)
+        public Representation Post<TRequest>(Uri uri, TRequest resource)
         {
             return this.PostAsync(uri, resource).Result;
         }
 
-        public async Task<Representation> PostAsync(Uri uri, TRequest resource)
+        public async Task<Representation> PostAsync<TRequest>(Uri uri, TRequest resource)
         {
             var content = this.SerializeContent(resource);
             this.eventConfig?.InvokeOnBeforePost(content);
             return this.HandleResult(await this.client.PostAsync(uri, content).ConfigureAwait(false));
         }
 
-        public Representation Put(Uri uri, TRequest resource)
+        public Representation Put<TRequest>(Uri uri, TRequest resource)
         {
             return this.PutAsync(uri, resource).Result;
         }
 
-        public async Task<Representation> PutAsync(Uri uri, TRequest resource)
+        public async Task<Representation> PutAsync<TRequest>(Uri uri, TRequest resource)
         {
             var content = this.SerializeContent(resource);
             this.eventConfig?.InvokeOnBeforePut(content);
@@ -142,11 +129,11 @@ namespace RestKit
             }
         }
 
-        private StreamContent SerializeContent(TRequest resource)
+        private StreamContent SerializeContent(object resource)
         {
             if (this.onSerialize == null)
             {
-                throw new InvalidOperationException($"The { nameof(this.SetSerializer) } callback must be set for this method.");
+                throw new InvalidOperationException($"The { nameof(this.SetMediaSerializer) } callback must be set for this method.");
             }
 
             var s = new MemoryStream(4096);

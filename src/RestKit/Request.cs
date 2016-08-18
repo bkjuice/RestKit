@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -21,185 +22,82 @@ namespace RestKit
             ServicePointManager.SecurityProtocol = protocolKind;
         }
 
-        public static IHttpResource Json()
+        public static Resource Json(string mediaType = ApplicationJson)
         {
-            // TODO: Allow for a deferred serializer for the body
-            return ConfigureJson(new Resource<object>());
+            return ConfigureJson(new Resource(), mediaType);
         }
 
-        public static IHttpResource Json(HttpMessageHandler handler)
+        public static Resource Json(HttpMessageHandler handler, string mediaType = ApplicationJson)
         {
-            // TODO: Allow for a deferred serializer for the body
-            return ConfigureJson(new Resource<object>(handler));
+            return ConfigureJson(new Resource(handler), mediaType);
         }
 
-        public static IHttpResource<TRequest> Json<TRequest>()
+        public static Resource Xml(string mediaType = TextXml)
         {
-            return ConfigureJson(new Resource<TRequest>());
+            return ConfigureXml(new Resource(), mediaType);
         }
 
-        public static IHttpResource<TRequest> Json<TRequest>(HttpMessageHandler handler)
+        public static Resource Xml(HttpMessageHandler handler, string mediaType = TextXml)
         {
-            return ConfigureJson(new Resource<TRequest>(handler));
+            return ConfigureXml(new Resource(handler), mediaType);
         }
 
-        public static IHttpResource<TRequest> Json<TRequest, TReply>()
+        public static Resource Text(string mediaType = TextPlain)
         {
-            return ConfigureJson<TRequest, TReply>(new Resource<TRequest>());
+            return ConfigureText(new Resource(), mediaType);
         }
 
-        public static IHttpResource<TRequest> Json<TRequest, TReply>(HttpMessageHandler handler)
+        public static Resource Text(HttpMessageHandler handler, string mediaType = TextPlain)
         {
-            return ConfigureJson<TRequest, TReply>(new Resource<TRequest>(handler));
+            return ConfigureText(new Resource(handler), mediaType);
         }
 
-        public static IHttpResource Xml()
+        public static Resource As(string mediaType, Action<object, Stream> serializer, Func<Stream, Type, object> deserializer)
         {
-            // TODO: Allow for a deferred serializer for the body
-            return ConfigureXml(new Resource<object>());
+            return ConfigureContent(new Resource(), serializer, deserializer, mediaType);
         }
 
-        public static IHttpResource Xml(HttpMessageHandler handler)
+        public static Resource As(HttpMessageHandler handler, string mediaType, Action<object, Stream> serializer, Func<Stream, Type, object> deserializer)
         {
-            // TODO: Allow for a deferred serializer for the body
-            return ConfigureXml(new Resource<object>(handler));
+            return ConfigureContent(new Resource(handler), serializer, deserializer, mediaType);
         }
 
-        public static IHttpResource<TRequest> Xml<TRequest>()
+        private static Resource ConfigureJson(Resource resource, string mediaType)
         {
-            return ConfigureXml(new Resource<TRequest>());
+            return ConfigureContent(resource, SerializeJson, DeserializeJson, mediaType);
         }
 
-        public static IHttpResource<TRequest> Xml<TRequest>(HttpMessageHandler handler)
+        private static Resource ConfigureXml(Resource resource, string mediaType)
         {
-            return ConfigureXml(new Resource<TRequest>(handler));
+            return ConfigureContent(resource, SerializeXml, DeserializeXml, mediaType);
         }
 
-        public static IHttpResource<TRequest> Xml<TRequest, TReply>()
+        private static Resource ConfigureText(Resource resource, string mediaType)
         {
-            return ConfigureXml<TRequest, TReply>(new Resource<TRequest>());
-        }
-
-        public static IHttpResource<TRequest> Xml<TRequest, TReply>(HttpMessageHandler handler)
-        {
-            return ConfigureXml<TRequest, TReply>(new Resource<TRequest>(handler));
-        }
-
-        public static IHttpResource<string> Text()
-        {
-            return ConfigureText(new Resource<string>());
-        }
-
-        public static IHttpResource<string> Text(HttpMessageHandler handler)
-        {
-            return ConfigureText(new Resource<string>(handler));
-        }
-
-        public static IHttpResource As<TReply>(string mediaType, Func<Stream, TReply> deserializer)
-        {
-            return Configure(new Resource<object>(), new MediaHandler<TReply>(deserializer, mediaType), mediaType);
-        }
-
-        public static IHttpResource As<TReply>(string mediaType, HttpMessageHandler handler, Func<Stream, TReply> deserializer)
-        {
-            return Configure(new Resource<object>(handler), new MediaHandler<TReply>(deserializer, mediaType), mediaType);
-        }
-
-        public static IHttpResource<TRequest> As<TRequest, TReply>(
-            string mediaType,
-            Action<TRequest, Stream> serializer,
-            Func<Stream, TReply> deserializer)
-        {
-            return Configure(new Resource<TRequest>(), serializer, deserializer, mediaType);
-        }
-
-        public static IHttpResource<TRequest> As<TRequest, TReply>(
-            string mediaType,
-            HttpMessageHandler handler,
-            Action<TRequest, Stream> serializer,
-            Func<Stream, TReply> deserializer)
-        {
-            return Configure(new Resource<TRequest>(handler), serializer, deserializer, mediaType);
-        }
-
-        ////private static IHttpResource ConfigureJson(IHttpResource resource)
-        ////{
-        ////    return Configure(resource, new MediaHandler(DeserializeJson, ApplicationJson), ApplicationJson);
-        ////}
-
-        private static IHttpResource<TRequest> ConfigureJson<TRequest>(IHttpResource<TRequest> resource)
-        {
-            return Configure(resource, SerializeJson, DeserializeJson, ApplicationJson);
-        }
-
-        private static IHttpResource<TRequest> ConfigureJson<TRequest, TReply>(IHttpResource<TRequest> resource)
-        {
-            return Configure(resource, SerializeJson, DeserializeJson<TReply>, ApplicationJson);
-        }
-
-        ////private static IHttpResource ConfigureXml(IHttpResource resource)
-        ////{
-        ////    return Configure(resource, new MediaHandler(DeserializeXml, TextXml), TextXml);
-        ////}
-
-        private static IHttpResource<TRequest> ConfigureXml<TRequest>(IHttpResource<TRequest> resource)
-        {
-            return Configure(resource, SerializeXml, DeserializeXml, TextXml);
-        }
-
-        private static IHttpResource<TRequest> ConfigureXml<TRequest, TReply>(Resource<TRequest> resource)
-        {
-            return Configure(resource, SerializeXml, DeserializeXml<TReply>, TextXml);
-        }
-
-        private static IHttpResource<string> ConfigureText(Resource<string> resource)
-        {
-            return Configure(
+            return ConfigureContent(
                 resource,
                 (s, io) => new StreamWriter(io).Write(s),
-                (io) => new StreamReader(io).ReadToEnd(),
-                TextPlain);
+                (io, t) => new StreamReader(io).ReadToEnd(),
+                mediaType);
         }
 
-        private static IHttpResource Configure(
-            IHttpResource resource,
-            IMediaHandler handler,
-            string mediaType)
+        private static Resource ConfigureContent(
+          Resource resource,
+          Action<object, Stream> serializer,
+          Func<Stream, Type, object> deserializer,
+          string mediaType)
         {
-            resource.AddMediaDeserializer(handler);
+            resource.SetMediaSerializer(serializer);
+            resource.AddMediaDeserializer(deserializer, mediaType);
             resource.Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
             return resource;
         }
 
-        private static IHttpResource<TRequest> Configure<TRequest>(
-          IHttpResource<TRequest> resource,
-          Action<TRequest, Stream> serializer,
-          Func<Stream, Type, object> deserializer,
-          string mediaType)
-        {
-            resource.Body.SetSerializer(serializer);
-            Configure(resource, new MediaHandler(deserializer, mediaType), mediaType);
-            return resource;
-        }
-
-        private static IHttpResource<TRequest> Configure<TRequest, TReply>(
-           IHttpResource<TRequest> resource,
-           Action<TRequest, Stream> serializer,
-           Func<Stream, TReply> deserializer,
-           string mediaType)
-        {
-            resource.Body.SetSerializer(serializer);
-            Configure(resource, new MediaHandler<TReply>(deserializer, mediaType), mediaType);
-            return resource;
-        }
-
-        private static T DeserializeJson<T>(Stream json)
-        {
-            return (T)DeserializeJson(json, typeof(T));
-        }
-
         private static object DeserializeJson(Stream json, Type t)
         {
+            Contract.Requires<ArgumentNullException>(t != null);
+            Contract.Requires<ArgumentNullException>(json != null);
+
             var serializer = new DataContractJsonSerializer(t);
             using (var reader = new StreamReader(json))
             {
@@ -207,32 +105,30 @@ namespace RestKit
             }
         }
 
-        private static void SerializeJson<T>(T resource, Stream output)
-        {
-            var serializer = new DataContractJsonSerializer(typeof(T));
-            serializer.WriteObject(output, resource);
-        }
-
         private static void SerializeJson(object resource, Stream output)
         {
+            Contract.Requires<ArgumentNullException>(resource != null);
+            Contract.Requires<ArgumentNullException>(output != null);
+
             var serializer = new DataContractJsonSerializer(resource.GetType());
             serializer.WriteObject(output, resource);
         }
 
-        private static T DeserializeXml<T>(Stream xml)
-        {
-            return (T)DeserializeXml(xml, (typeof(T)));
-        }
-
         private static object DeserializeXml(Stream xml, Type t)
         {
+            Contract.Requires<ArgumentNullException>(t != null);
+            Contract.Requires<ArgumentNullException>(xml != null);
+
             var serializer = new XmlSerializer(t);
             return serializer.Deserialize(xml);
         }
 
-        private static void SerializeXml<T>(T resource, Stream output)
+        private static void SerializeXml(object resource, Stream output)
         {
-            var serializer = new XmlSerializer(typeof(T));
+            Contract.Requires<ArgumentNullException>(resource != null);
+            Contract.Requires<ArgumentNullException>(output != null);
+
+            var serializer = new XmlSerializer(resource.GetType());
             serializer.Serialize(output, resource);
         }
     }

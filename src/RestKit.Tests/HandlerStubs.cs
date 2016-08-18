@@ -25,17 +25,17 @@ namespace RestKit.Tests
             return handler;
         }
 
-        public static Resource<string> SetupValidStringlyTypedStub(this HttpStatusCode expectedStatus, string content = "test content")
+        public static Resource SetupValidStringlyTypedStub(this HttpStatusCode expectedStatus, string content = "test content")
         {
             return expectedStatus.SetupValidStringlyTypedStub(new StringContent(content, Encoding.UTF8, "text/plain"));
         }
 
-        public static Resource<string> SetupValidStringlyTypedStub(this HttpStatusCode expectedStatus, HttpContent content)
+        public static Resource SetupValidStringlyTypedStub(this HttpStatusCode expectedStatus, HttpContent content)
         {
             var handler = expectedStatus.BuildHandler(content);
-            var resource = new Resource<string>(handler);
-            resource.AddMediaDeserializer(s => new StreamReader(s).ReadToEnd(), "text/plain");
-            resource.SetSerializer((s, io) => new StreamWriter(io).Write(s));
+            var resource = new Resource(handler);
+            resource.AddMediaDeserializer((s, t) => new StreamReader(s).ReadToEnd(), "text/plain");
+            resource.SetMediaSerializer((s, io) => new StreamWriter(io).Write(s));
             return resource;
         }
 
