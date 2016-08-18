@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace RestKit
 {
-    public class Resource : IHttpResource, IDisposable
+    public partial class Resource : IHttpResource, IDisposable
     {
         private HttpClient client;
 
@@ -147,9 +147,9 @@ namespace RestKit
         private Representation HandleResult(HttpResponseMessage reply)
         {
             // TODO: handle 100 and 300 codes, and allow for retry via RetryPolicy, with no touch defaults
-            var statusCode = reply.StatusCode;
-            this.eventConfig?.InvokeReplyActions(reply);
-            return new Representation(reply, this.mediaChain);
+            var result = new Representation(reply, this.mediaChain);
+            this.eventConfig?.InvokeReplyActions(result);
+            return result;
         }
     }
 }

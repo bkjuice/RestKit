@@ -143,12 +143,13 @@
   <ItemGroup>
     <Compile Include="CasingConvention.cs" />
     <Compile Include="ContentHandlers.cs" />
+    <Compile Include="DefaultMedia.cs" />
     <Compile Include="IHttpResource.cs" />
     <Compile Include="IEventConfiguration.cs" />
     <Compile Include="MediaChain.cs" />
     <Compile Include="MediaHandler.cs" />
     <Compile Include="ReadOnlySeekableStream.cs" />
-    <Compile Include="Request.cs" />
+    <Compile Include="Resource.Builders.cs" />
     <Compile Include="ResourceEventConfiguration.cs" />
     <Compile Include="Resource.cs" />
     <Compile Include="XmlConventions.cs" />

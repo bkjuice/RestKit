@@ -18,14 +18,14 @@ namespace RestKit
 
         private MediaHandler mediaHandler;
 
-        private Lazy<ReadOnlySeekableStream> contentCopy;
+        private Lazy<Task<ReadOnlySeekableStream>> contentCopy;
 
         public Representation(HttpResponseMessage reply, MediaChain mediaHandlers = null)
         {
             Contract.Requires<ArgumentNullException>(reply != null);
 
             this.Message = reply;
-            this.contentCopy = new Lazy<ReadOnlySeekableStream>(this.InitializeRawContent);
+            this.contentCopy = new Lazy<Task<ReadOnlySeekableStream>>(this.InitializeRawContent);
 
             var media = reply.Content?.Headers?.ContentType?.MediaType;
             var accepts = reply.RequestMessage?.Headers?.Accept;
@@ -75,62 +75,114 @@ namespace RestKit
 
         public TReply Deserialize<TReply>()
         {
+            return this.DeserializeAsync<TReply>().Result;
+        }
+
+        public dynamic GetContentAsXml(XmlConventions conventions = null)
+        {
+            return this.GetContentAsXmlAsync(conventions).Result;
+        }
+
+        public XElement GetContentAsXElement()
+        {
+            return this.GetContentAsXElementAsync().Result;
+        }
+
+        public XDocument GetContentAsXDocument()
+        {
+            return this.GetContentAsXDocumentAsync().Result;
+        }
+
+        public XmlReader GetContentAsXmlReader()
+        {
+            return this.GetContentAsXmlReaderAsync().Result;
+        }
+
+        public Dictionary<string, object> GetContentAsJsonMap()
+        {
+            return this.GetContentAsJsonMapAsync().Result;
+        }
+
+        public dynamic GetContentAsJson(CasingConvention casing = CasingConvention.AsIs)
+        {
+            return this.GetContentAsJsonAsync(casing).Result;
+        }
+
+        public Stream GetContentAsStream()
+        {
+            return this.GetContentAsStreamAsync().Result;
+        }
+
+        public string GetContentAsText()
+        {
+            return this.GetContentAsTextAsync().Result;
+        }
+
+        public async Task<TReply> DeserializeAsync<TReply>()
+        {
             if (this.mediaHandler == null)
             {
                 throw new InvalidOperationException($"The representation cannot deserialize because there is no defined handler for media type '{ this.MediaType }'. Ensure a deserializer that handles this media type representation is added to the resource before executing the Http method.");
             }
 
-            return (TReply)this.mediaHandler.Deserialize(this.GetContentAsStream(), typeof(TReply));
+            return (TReply)this.mediaHandler.Deserialize(await this.GetContentAsStreamAsync(), typeof(TReply));
+        }
+        
+        public async Task<dynamic> GetContentAsXmlAsync(XmlConventions conventions = null)
+        {
+            return (await this.GetContentAsXElementAsync()).ToDynamic(conventions ?? XmlConventions.Default);
         }
 
-        public XElement GetContentAsXElement()
+        public async Task<XElement> GetContentAsXElementAsync()
         {
-            return XElement.Load(this.GetContentAsStream(), LoadOptions.PreserveWhitespace);
-        }
-        public XDocument GetContentAsXDocument()
-        {
-            return XDocument.Load(this.GetContentAsStream(), LoadOptions.PreserveWhitespace);
+            return XElement.Load(await this.GetContentAsStreamAsync(), LoadOptions.PreserveWhitespace);
         }
 
-        public dynamic GetContentAsXml(XmlConventions conventions = null)
+        public async Task<XDocument> GetContentAsXDocumentAsync()
         {
-            return this.GetContentAsXElement().ToDynamic(conventions ?? XmlConventions.Default);
+            return XDocument.Load(await this.GetContentAsStreamAsync(), LoadOptions.PreserveWhitespace);
         }
 
-        public XmlReader GetContentAsXmlReader()
+        public async Task<XmlReader> GetContentAsXmlReaderAsync()
         {
-            return new XmlTextReader(this.GetContentAsStream());
+            return new XmlTextReader(await this.GetContentAsStreamAsync());
         }
 
-        public Dictionary<string, object> GetContentAsJsonMap()
+        public async Task<Dictionary<string, object>> GetContentAsJsonMapAsync()
         {
-            return new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(this.GetContentAsString());
+            return new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(await this.GetContentAsTextAsync());
         }
 
-        public dynamic GetContentAsJson(CasingConvention casing = CasingConvention.AsIs)
+        public async Task<dynamic> GetContentAsJsonAsync(CasingConvention casing = CasingConvention.AsIs)
         {
-            return this.GetContentAsJsonMap().ToDynamic(casing);
+            return (await this.GetContentAsJsonMapAsync()).ToDynamic(casing);
         }
 
-        public Stream GetContentAsStream()
+        public async Task<Stream> GetContentAsStreamAsync()
         {
-            this.contentCopy.Value.Position = 0;
-            return this.contentCopy.Value;
+            var copy = await this.contentCopy.Value;
+            copy.Position = 0;
+            return copy;
         }
 
-        public string GetContentAsString()
+        public async Task<string> GetContentAsTextAsync()
         {
-            using (var reader = new StreamReader(this.GetContentAsStream()))
+            using (var reader = new StreamReader(await this.GetContentAsStreamAsync()))
             {
                 return reader.ReadToEnd();
             }
         }
 
-        private ReadOnlySeekableStream InitializeRawContent()
+        private async Task<ReadOnlySeekableStream> InitializeRawContent()
         {
             // TODO: Unwind this to allow async...forward only reading...
             var s = new MemoryStream(defaultBufferSize);
-            this.Message.Content?.ReadAsStreamAsync().ConfigureAwait(false).GetAwaiter().GetResult().CopyTo(s);
+            if (this.Message?.Content != null)
+            {
+                var source = await this.Message.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                source.CopyTo(s);
+            }
+
             return new ReadOnlySeekableStream(s);
         }
     }

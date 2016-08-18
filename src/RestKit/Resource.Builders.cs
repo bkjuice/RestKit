@@ -9,45 +9,39 @@ using System.Xml.Serialization;
 
 namespace RestKit
 {
-    public static class Request
+    public partial class Resource
     {
-        public const string ApplicationJson = "application/json";
-
-        public const string TextXml = "text/xml";
-
-        public const string TextPlain = "text/plain";
-
-        public static void SetGlobalMinSecurityProtocol(SecurityProtocolType protocolKind)
+        public static void SetGlobalMinimumSecurityProtocol(SecurityProtocolType protocolKind)
         {
             ServicePointManager.SecurityProtocol = protocolKind;
         }
 
-        public static Resource Json(string mediaType = ApplicationJson)
+        public static Resource Json(string mediaType = DefaultMedia.ApplicationJson)
         {
             return ConfigureJson(new Resource(), mediaType);
         }
 
-        public static Resource Json(HttpMessageHandler handler, string mediaType = ApplicationJson)
+        public static Resource Json(HttpMessageHandler handler, string mediaType = DefaultMedia.ApplicationJson)
         {
             return ConfigureJson(new Resource(handler), mediaType);
         }
 
-        public static Resource Xml(string mediaType = TextXml)
+        public static Resource Xml(string mediaType = DefaultMedia.TextXml)
         {
             return ConfigureXml(new Resource(), mediaType);
         }
 
-        public static Resource Xml(HttpMessageHandler handler, string mediaType = TextXml)
+        public static Resource Xml(HttpMessageHandler handler, string mediaType = DefaultMedia.TextXml)
         {
             return ConfigureXml(new Resource(handler), mediaType);
         }
 
-        public static Resource Text(string mediaType = TextPlain)
+        public static Resource Text(string mediaType = DefaultMedia.TextPlain)
         {
             return ConfigureText(new Resource(), mediaType);
         }
 
-        public static Resource Text(HttpMessageHandler handler, string mediaType = TextPlain)
+        public static Resource Text(HttpMessageHandler handler, string mediaType = DefaultMedia.TextPlain)
         {
             return ConfigureText(new Resource(handler), mediaType);
         }

@@ -112,45 +112,44 @@ namespace RestKit
             this.onBeforeDelete?.Invoke(this.client);
         }
 
-        public void InvokeReplyActions(HttpResponseMessage reply)
+        public void InvokeReplyActions(Representation representation)
         {
-            var statusCode = (int)reply.StatusCode;
-            this.onReply?.Invoke(reply);
-            var accepts = reply.RequestMessage?.Headers?.Accept;
-            var content = reply.Content?.Headers?.ContentType;
+            var statusCode = (int)representation.StatusCode;
 
-            var match = accepts?.FirstOrDefault(h => h.MediaType.Equals(content?.MediaType, StringComparison.OrdinalIgnoreCase)) != null;
-            if (!match)
+            var message = representation.Message;
+            this.onReply?.Invoke(message);
+            
+            if (representation.IsUnexpectedMediaType)
             {
-                this.onContentMismatch?.Invoke(reply);
+                this.onContentMismatch?.Invoke(message);
             }
 
-            var code = (int)reply.StatusCode;
+            var code = (int)representation.StatusCode;
             if (code < 200)
             {
-                this.onInformationStatus?.Invoke(reply);
+                this.onInformationStatus?.Invoke(message);
                 return;
             }
 
             if (code < 300)
             {
-                this.onSuccessStatus?.Invoke(reply);
+                this.onSuccessStatus?.Invoke(message);
                 return;
             }
 
             if (code < 400)
             {
-                this.onRedirectStatus?.Invoke(reply);
+                this.onRedirectStatus?.Invoke(message);
                 return;
             }
 
             if (code < 500)
             {
-                this.onClientErrorStatus?.Invoke(reply);
+                this.onClientErrorStatus?.Invoke(message);
                 return;
             }
 
-            this.onServerErrorStatus?.Invoke(reply);
+            this.onServerErrorStatus?.Invoke(message);
         }
     }
 }

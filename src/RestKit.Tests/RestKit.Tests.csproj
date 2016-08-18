@@ -81,9 +81,9 @@
     <Compile Include="Content\SimpleItem.cs" />
     <Compile Include="Content\ProtoSerializer.cs" />
     <Compile Include="HandlerStubs.cs" />
-    <Compile Include="RequestTests.cs" />
+    <Compile Include="ResourceBuilderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourceOfTTests.cs" />
+    <Compile Include="ResourceTests.cs" />
     <Compile Include="MediaHandlerTests.cs" />
     <Compile Include="ResourceBehaviorTests.cs" />
     <Compile Include="RepresentationTests.cs" />

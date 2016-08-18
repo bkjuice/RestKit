@@ -10,7 +10,7 @@ using Moq;
 namespace RestKit.Tests
 {
     [TestClass]
-    public class ResourceOfTTests
+    public class ResourceTests
     {
         private static readonly Uri DummyUri = new Uri("http://nowhere.com");
 
