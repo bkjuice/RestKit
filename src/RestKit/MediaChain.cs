@@ -5,14 +5,14 @@ namespace RestKit
 {
     public class MediaChain
     {
-        private List<IMediaHandler> handlers = new List<IMediaHandler>();
+        private List<MediaHandler> handlers = new List<MediaHandler>();
 
-        public void AddHandler(IMediaHandler handler)
+        public void AddHandler(MediaHandler handler)
         {
             handlers.Add(handler);
         }
 
-        public IMediaHandler GetHandlerFor(string mediaType)
+        public MediaHandler GetHandlerFor(string mediaType)
         {
             return this.handlers.FirstOrDefault(h => h?.CanDeserialize(mediaType) == true);
         }

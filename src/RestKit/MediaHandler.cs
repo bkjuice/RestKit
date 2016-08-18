@@ -4,7 +4,7 @@ using System.IO;
 
 namespace RestKit
 {
-    public class MediaHandler : IMediaHandler
+    public class MediaHandler
     {
         private Func<Stream, Type, object> handler;
 
@@ -17,16 +17,6 @@ namespace RestKit
 
             this.handler = handler;
             this.expectedMediaType = expectedMediaType;
-        }
-
-        bool IMediaHandler.CanDeserialize(string mediaType)
-        {
-            return this.CanDeserialize(mediaType);
-        }
-
-        object IMediaHandler.Deserialize(Stream content, Type target)
-        {
-            return this.Deserialize(content, target);
         }
 
         public bool CanDeserialize(string mediaType)
