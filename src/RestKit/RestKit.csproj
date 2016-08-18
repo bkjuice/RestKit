@@ -151,7 +151,7 @@
     <Compile Include="MediaHandler.cs" />
     <Compile Include="MediaHandler{T}.cs" />
     <Compile Include="ReadOnlySeekableStream.cs" />
-    <Compile Include="Resource.cs" />
+    <Compile Include="Request.cs" />
     <Compile Include="ResourceEventConfiguration.cs" />
     <Compile Include="Resource{T}.cs" />
     <Compile Include="XmlConventions.cs" />

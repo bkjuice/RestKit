@@ -11,13 +11,13 @@ namespace RestKit.IntegrationTests
         [TestMethod]
         public void RedirectForNonTLSGoogle()
         {
-            var result = Resource.Text().Get(new Uri("http://www.google.com"));
+            var result = Request.Text().Get(new Uri("http://www.google.com"));
         }
 
         [TestMethod]
         public void UrlEchoGet500()
         {
-            var result = Resource.Text().Get(new Uri("http://urlecho.appspot.com/echo?status=500"));
+            var result = Request.Text().Get(new Uri("http://urlecho.appspot.com/echo?status=500"));
             result.IsUnexpectedMediaType.Should().BeTrue();
             result.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }

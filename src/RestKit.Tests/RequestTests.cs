@@ -11,12 +11,12 @@ using RestKit.Tests.Content;
 namespace RestKit.Tests
 {
     [TestClass]
-    public class ResourceTests
+    public class RequestTests
     {
         [TestMethod]
         public void AsProtoResourceReturnsValidResourceInstance()
         {
-            Resource.As<SimpleItem, SimpleItem>(
+            Request.As<SimpleItem, SimpleItem>(
                 "application/protobuf", // whatever it is...
                 ProtoSerializer.Serialize,
                 ProtoSerializer.Deserialize<SimpleItem>)
@@ -35,7 +35,7 @@ namespace RestKit.Tests
                 expectedContent: new StreamContent(content),
                 requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
             
-            Resource.As<SimpleItem, SimpleItem>(
+            Request.As<SimpleItem, SimpleItem>(
                 "application/protobuf",
                 handler, 
                 ProtoSerializer.Serialize, 
@@ -47,7 +47,7 @@ namespace RestKit.Tests
         public void AsProtoResourceInvokesPost()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Post));
-            Resource.As<SimpleItem, SimpleItem>(
+            Request.As<SimpleItem, SimpleItem>(
                 "application/protobuf", 
                 handler,
                 ProtoSerializer.Serialize,
@@ -59,7 +59,7 @@ namespace RestKit.Tests
         public void AsProtoResourceInvokesPut()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Put));
-            Resource.As<SimpleItem, SimpleItem>(
+            Request.As<SimpleItem, SimpleItem>(
                 "application/protobuf", 
                 handler,
                 ProtoSerializer.Serialize,
@@ -71,7 +71,7 @@ namespace RestKit.Tests
         public void AsProtoResourceInvokesDelete()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Delete));
-            Resource.As<SimpleItem, SimpleItem>(
+            Request.As<SimpleItem, SimpleItem>(
                 "application/protobuf", 
                 handler,
                 ProtoSerializer.Serialize,
@@ -82,17 +82,23 @@ namespace RestKit.Tests
         [TestMethod]
         public void XmlReturnsValidResourceInstance()
         {
-            Resource.Xml().Should().NotBeNull();
+            Request.Xml().Should().NotBeNull();
         }
 
         [TestMethod]
         public void XmlResourceInvokesGet()
         {
+            var invoked = false;
             var handler = HttpStatusCode.OK.BuildHandler(
                 expectedContent: new StringContent("<SimpleItem><Value>test</Value></SimpleItem>"),
-                requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
+                requestCallback: 
+                (r) => {
+                    invoked = true;
+                    r.Method.Should().Be(HttpMethod.Get);
+                });
 
-            Resource.Xml(handler).Get(new Uri("http://nowhere.com"));
+            Request.Xml(handler).Get(new Uri("http://nowhere.com"));
+            invoked.Should().BeTrue();
         }
 
         [TestMethod]
@@ -103,7 +109,7 @@ namespace RestKit.Tests
                 requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
 
             // TODO: GET AND DELETE, no type parameter!
-            var representation = Resource.Xml(handler).Get(new Uri("http://nowhere.com"));
+            var representation = Request.Xml(handler).Get(new Uri("http://nowhere.com"));
             var result = representation.Deserialize<SimpleItem>();
             result.Value.Should().Be("test");
         }
@@ -114,27 +120,27 @@ namespace RestKit.Tests
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Post));
 
             // This should just be XElement or XDocument:
-            Resource.Xml<string>(handler).Post(new Uri("http://nowhere.com"), "test");
+            Request.Xml<string>(handler).Post(new Uri("http://nowhere.com"), "test");
         }
 
         [TestMethod]
         public void XmlResourceInvokesPut()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Put));
-            Resource.Xml<string>(handler).Put(new Uri("http://nowhere.com"), "test");
+            Request.Xml<string>(handler).Put(new Uri("http://nowhere.com"), "test");
         }
 
         [TestMethod]
         public void XmlResourceInvokesDelete()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Delete));
-            Resource.Xml<string>(handler).Delete(new Uri("http://nowhere.com"));
+            Request.Xml<string>(handler).Delete(new Uri("http://nowhere.com"));
         }
 
         [TestMethod]
         public void JsonReturnsValidResourceInstance()
         {
-            Resource.Json<SimpleItem>().Should().NotBeNull();
+            Request.Json<SimpleItem>().Should().NotBeNull();
         }
 
         [TestMethod]
@@ -145,28 +151,28 @@ namespace RestKit.Tests
                 requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
 
             // TODO: Type qualifier for get and delete make no sense...
-            Resource.Json<string>(handler).Get(new Uri("http://nowhere.com"));
+            Request.Json<string>(handler).Get(new Uri("http://nowhere.com"));
         }
 
         [TestMethod]
         public void JsonResourceInvokesDelete()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Delete));
-            Resource.Json<string>(handler).Delete(new Uri("http://nowhere.com"));
+            Request.Json<string>(handler).Delete(new Uri("http://nowhere.com"));
         }
 
         [TestMethod]
         public void JsonResourceInvokesPost()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Post));
-            Resource.Json<string>(handler).Post(new Uri("http://nowhere.com"), "test");
+            Request.Json<string>(handler).Post(new Uri("http://nowhere.com"), "test");
         }
 
         [TestMethod]
         public void JsonResourceInvokesPut()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Put));
-            Resource.Json<string>(handler).Put(new Uri("http://nowhere.com"), "test");
+            Request.Json<string>(handler).Put(new Uri("http://nowhere.com"), "test");
         }
 
         [TestMethod]
@@ -178,7 +184,7 @@ namespace RestKit.Tests
                 expectedContent: content,
                 requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
 
-            var representation = Resource.Json<SimpleItem>(handler).Get(new Uri("http://nowhere.com"));
+            var representation = Request.Json<SimpleItem>(handler).Get(new Uri("http://nowhere.com"));
 
             representation.CanDeserialize.Should().BeTrue();
             var data = representation.Deserialize<SimpleItem>();
@@ -188,7 +194,7 @@ namespace RestKit.Tests
         [TestMethod]
         public void TextReturnsValidResourceInstance()
         {
-            Resource.Text().Should().NotBeNull();
+            Request.Text().Should().NotBeNull();
         }
 
         [TestMethod]
@@ -197,7 +203,7 @@ namespace RestKit.Tests
             var handler = HttpStatusCode.OK.BuildHandler(
                 expectedContent: new StringContent("result"),
                 requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
-            Resource.Text(handler).Get(new Uri("http://nowhere.com"));
+            Request.Text(handler).Get(new Uri("http://nowhere.com"));
         }
 
         [TestMethod]
@@ -207,7 +213,7 @@ namespace RestKit.Tests
                 expectedContent: new StringContent("result"),
                 requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
 
-            var representation = Resource.Text(handler).Get(new Uri("http://nowhere.com"));
+            var representation = Request.Text(handler).Get(new Uri("http://nowhere.com"));
             representation.GetContentAsString().Should().Be("result");
         }
 
@@ -215,21 +221,21 @@ namespace RestKit.Tests
         public void TextResourceInvokesPost()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Post));
-            Resource.Text(handler).Post(new Uri("http://nowhere.com"), "test");
+            Request.Text(handler).Post(new Uri("http://nowhere.com"), "test");
         }
 
         [TestMethod]
         public void TextResourceInvokesPut()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Put));
-            Resource.Text(handler).Put(new Uri("http://nowhere.com"), "test");
+            Request.Text(handler).Put(new Uri("http://nowhere.com"), "test");
         }
 
         [TestMethod]
         public void TextResourceInvokesDelete()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Delete));
-            Resource.Text(handler).Delete(new Uri("http://nowhere.com"));
+            Request.Text(handler).Delete(new Uri("http://nowhere.com"));
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace RestKit
 {
-    public static class Resource
+    public static class Request
     {
         public const string ApplicationJson = "application/json";
 
@@ -122,10 +122,10 @@ namespace RestKit
             return Configure(new Resource<TRequest>(handler), serializer, deserializer, mediaType);
         }
 
-        private static IHttpResource ConfigureJson(IHttpResource resource)
-        {
-            return Configure(resource, new MediaHandler(DeserializeJson, ApplicationJson), ApplicationJson);
-        }
+        ////private static IHttpResource ConfigureJson(IHttpResource resource)
+        ////{
+        ////    return Configure(resource, new MediaHandler(DeserializeJson, ApplicationJson), ApplicationJson);
+        ////}
 
         private static IHttpResource<TRequest> ConfigureJson<TRequest>(IHttpResource<TRequest> resource)
         {
@@ -137,10 +137,10 @@ namespace RestKit
             return Configure(resource, SerializeJson, DeserializeJson<TReply>, ApplicationJson);
         }
 
-        private static IHttpResource ConfigureXml(IHttpResource resource)
-        {
-            return Configure(resource, new MediaHandler(DeserializeXml, TextXml), TextXml);
-        }
+        ////private static IHttpResource ConfigureXml(IHttpResource resource)
+        ////{
+        ////    return Configure(resource, new MediaHandler(DeserializeXml, TextXml), TextXml);
+        ////}
 
         private static IHttpResource<TRequest> ConfigureXml<TRequest>(IHttpResource<TRequest> resource)
         {
@@ -210,6 +210,12 @@ namespace RestKit
         private static void SerializeJson<T>(T resource, Stream output)
         {
             var serializer = new DataContractJsonSerializer(typeof(T));
+            serializer.WriteObject(output, resource);
+        }
+
+        private static void SerializeJson(object resource, Stream output)
+        {
+            var serializer = new DataContractJsonSerializer(resource.GetType());
             serializer.WriteObject(output, resource);
         }
 
