@@ -7,6 +7,6 @@ namespace RestKit
     {
         bool CanDeserialize(string mediaType);
 
-        object Deserialize(Stream content);
+        object Deserialize(Stream content, Type target);
     }
 }

@@ -16,7 +16,7 @@ namespace RestKit.Tests
         [TestMethod]
         public void AsProtoResourceReturnsValidResourceInstance()
         {
-            Resource.As(
+            Resource.As<SimpleItem, SimpleItem>(
                 "application/protobuf", // whatever it is...
                 ProtoSerializer.Serialize,
                 ProtoSerializer.Deserialize<SimpleItem>)
@@ -35,7 +35,7 @@ namespace RestKit.Tests
                 expectedContent: new StreamContent(content),
                 requestCallback: (r) => r.Method.Should().Be(HttpMethod.Get));
             
-            Resource.As(
+            Resource.As<SimpleItem, SimpleItem>(
                 "application/protobuf",
                 handler, 
                 ProtoSerializer.Serialize, 
@@ -47,7 +47,7 @@ namespace RestKit.Tests
         public void AsProtoResourceInvokesPost()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Post));
-            Resource.As(
+            Resource.As<SimpleItem, SimpleItem>(
                 "application/protobuf", 
                 handler,
                 ProtoSerializer.Serialize,
@@ -59,7 +59,7 @@ namespace RestKit.Tests
         public void AsProtoResourceInvokesPut()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Put));
-            Resource.As(
+            Resource.As<SimpleItem, SimpleItem>(
                 "application/protobuf", 
                 handler,
                 ProtoSerializer.Serialize,
@@ -71,7 +71,7 @@ namespace RestKit.Tests
         public void AsProtoResourceInvokesDelete()
         {
             var handler = HttpStatusCode.OK.BuildHandler(requestCallback: (r) => r.Method.Should().Be(HttpMethod.Delete));
-            Resource.As(
+            Resource.As<SimpleItem, SimpleItem>(
                 "application/protobuf", 
                 handler,
                 ProtoSerializer.Serialize,

@@ -6,8 +6,6 @@ namespace RestKit
 {
     public interface IEventConfiguration
     {
-        HttpClient Client { get; }
-
         void OnBeforeGet(Action<HttpClient> action);
 
         void OnBeforePost(Action<HttpClient, HttpContent> action);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net.Http;
 
@@ -6,8 +7,6 @@ namespace RestKit
 {
     public class ResourceEventConfiguration : IEventConfiguration
     {
-        private HttpClient client;
-
         private Action<HttpClient> onBeforeGet;
 
         private Action<HttpClient, HttpContent> onBeforePost;
@@ -30,17 +29,12 @@ namespace RestKit
 
         private Action<HttpResponseMessage> onContentMismatch;
 
+        private HttpClient client;
+
         public ResourceEventConfiguration(HttpClient client)
         {
+            Contract.Requires<ArgumentNullException>(client != null);
             this.client = client;
-        }
-
-        public HttpClient Client
-        {
-            get
-            {
-                return this.client;
-            }
         }
 
         public void OnBeforeGet(Action<HttpClient> action)

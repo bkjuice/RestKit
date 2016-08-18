@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace RestKit
 {
-    public class Resource<TRequest> : IHttpResource<TRequest>, IMediaConfiguration<TRequest>, IDisposable
+    public class Resource<TRequest> : IHttpResource<TRequest>, IRequestBody<TRequest>, IDisposable
     {
         private HttpClient client;
 
@@ -28,7 +28,7 @@ namespace RestKit
             this.client = client;
         }
 
-        public IEventConfiguration EventConfig
+        public IEventConfiguration Events
         {
             get
             {
@@ -41,7 +41,7 @@ namespace RestKit
             }
         }
 
-        public IMediaConfiguration<TRequest> MediaHandler
+        public IRequestBody<TRequest> Body
         {
             get
             {
@@ -62,15 +62,19 @@ namespace RestKit
             this.onSerialize = serializerAction;
         }
 
-        public void AddMediaDeserializer<TReply>(Func<Stream, TReply> deserializerFunc, string mediaType)
+        public void AddMediaDeserializer(IMediaHandler handler)
         {
             if (this.mediaChain == null)
             {
                 this.mediaChain = new MediaChain();
             }
 
-            var handler = new MediaHandler<TReply>(s => deserializerFunc(s), mediaType);
             this.mediaChain.AddHandler(handler);
+        }
+
+        public void AddMediaDeserializer<TReply>(Func<Stream, TReply> deserializerFunc, string mediaType)
+        {
+            this.AddMediaDeserializer(new MediaHandler<TReply>(s => deserializerFunc(s), mediaType));
         }
 
         public Representation Get(Uri uri)

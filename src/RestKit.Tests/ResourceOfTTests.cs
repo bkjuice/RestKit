@@ -17,19 +17,19 @@ namespace RestKit.Tests
         [TestMethod]
         public void ResourceConfigIsNotNullOnGet()
         {
-            new Resource<string>().EventConfig.Should().NotBeNull();
+            new Resource<string>().Events.Should().NotBeNull();
         }
 
         [TestMethod]
         public void ResourceConfigReturnsValidHttpClientForDefaultCtor()
         {
-            new Resource<string>().EventConfig.Client.Should().NotBeNull();
+            new Resource<string>().Client.Should().NotBeNull();
         }
 
         [TestMethod]
         public void ResourceConfigReturnsValidHttpClientForTestableCtor()
         {
-            new Resource<string>(new Mock<HttpMessageHandler>().Object).EventConfig.Client.Should().NotBeNull();
+            new Resource<string>(new Mock<HttpMessageHandler>().Object).Client.Should().NotBeNull();
         }
 
         [TestMethod]
@@ -84,7 +84,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked = false;
-            resource.EventConfig.OnBeforeGet(c => invoked = true);
+            resource.Events.OnBeforeGet(c => invoked = true);
             resource.Get(DummyUri);
             invoked.Should().BeTrue();
         }
@@ -95,8 +95,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnBeforeGet(c => invoked1 = true);
-            resource.EventConfig.OnBeforeGet(c => invoked2 = true);
+            resource.Events.OnBeforeGet(c => invoked1 = true);
+            resource.Events.OnBeforeGet(c => invoked2 = true);
             resource.Get(DummyUri);
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
@@ -107,7 +107,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked = false;
-            resource.EventConfig.OnBeforePost((c, d) => invoked = true);
+            resource.Events.OnBeforePost((c, d) => invoked = true);
             resource.Post(DummyUri, "test");
             invoked.Should().BeTrue();
         }
@@ -118,8 +118,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnBeforePost((c, d) => invoked1 = true);
-            resource.EventConfig.OnBeforePost((c, d) => invoked2 = true);
+            resource.Events.OnBeforePost((c, d) => invoked1 = true);
+            resource.Events.OnBeforePost((c, d) => invoked2 = true);
             resource.Post(DummyUri, "test");
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
@@ -130,7 +130,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked = false;
-            resource.EventConfig.OnBeforePut((c, d) => invoked = true);
+            resource.Events.OnBeforePut((c, d) => invoked = true);
             resource.Put(DummyUri, "test");
             invoked.Should().BeTrue();
         }
@@ -141,8 +141,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnBeforePut((c, d) => invoked1 = true);
-            resource.EventConfig.OnBeforePut((c, d) => invoked2 = true);
+            resource.Events.OnBeforePut((c, d) => invoked1 = true);
+            resource.Events.OnBeforePut((c, d) => invoked2 = true);
             resource.Put(DummyUri, "test");
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
@@ -153,7 +153,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked = false;
-            resource.EventConfig.OnBeforeDelete(c => invoked = true);
+            resource.Events.OnBeforeDelete(c => invoked = true);
             resource.Delete(DummyUri);
             invoked.Should().BeTrue();
         }
@@ -164,8 +164,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnBeforeDelete(c => invoked1 = true);
-            resource.EventConfig.OnBeforeDelete(c => invoked2 = true);
+            resource.Events.OnBeforeDelete(c => invoked1 = true);
+            resource.Events.OnBeforeDelete(c => invoked2 = true);
             resource.Delete(DummyUri);
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
@@ -176,7 +176,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked1 = false;
-            resource.EventConfig.OnReply((m) => invoked1 = true);
+            resource.Events.OnReply((m) => invoked1 = true);
             resource.Get(DummyUri);
             invoked1.Should().BeTrue();
         }
@@ -187,8 +187,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnReply((m) => invoked1 = true);
-            resource.EventConfig.OnReply((m) => invoked2 = true);
+            resource.Events.OnReply((m) => invoked1 = true);
+            resource.Events.OnReply((m) => invoked2 = true);
             resource.Get(DummyUri);
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
@@ -215,7 +215,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.Continue.SetupValidStringlyTypedStub();
             var invoked = false;
-            resource.EventConfig.OnInformationStatus(r => invoked = true);
+            resource.Events.OnInformationStatus(r => invoked = true);
             resource.Post(DummyUri, "test");
             invoked.Should().BeTrue();
         }
@@ -226,8 +226,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.Continue.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnInformationStatus(r => invoked1 = true);
-            resource.EventConfig.OnInformationStatus(r => invoked2 = true);
+            resource.Events.OnInformationStatus(r => invoked1 = true);
+            resource.Events.OnInformationStatus(r => invoked2 = true);
             resource.Post(DummyUri, "test");
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
@@ -238,7 +238,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked = false;
-            resource.EventConfig.OnSuccessStatus(r => invoked = true);
+            resource.Events.OnSuccessStatus(r => invoked = true);
             resource.Post(DummyUri, "test");
             invoked.Should().BeTrue();
         }
@@ -249,8 +249,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.Created.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnSuccessStatus(r => invoked1 = true);
-            resource.EventConfig.OnSuccessStatus(r => invoked2 = true);
+            resource.Events.OnSuccessStatus(r => invoked1 = true);
+            resource.Events.OnSuccessStatus(r => invoked2 = true);
             resource.Post(DummyUri, "test");
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
@@ -261,7 +261,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.Moved.SetupValidStringlyTypedStub();
             var invoked = false;
-            resource.EventConfig.OnRedirectStatus(r => invoked = true);
+            resource.Events.OnRedirectStatus(r => invoked = true);
             resource.Post(DummyUri, "test");
             invoked.Should().BeTrue();
         }
@@ -272,8 +272,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.MovedPermanently.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnRedirectStatus(r => invoked1 = true);
-            resource.EventConfig.OnRedirectStatus(r => invoked2 = true);
+            resource.Events.OnRedirectStatus(r => invoked1 = true);
+            resource.Events.OnRedirectStatus(r => invoked2 = true);
             resource.Post(DummyUri, "test");
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
@@ -284,7 +284,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.BadRequest.SetupValidStringlyTypedStub();
             var invoked = false;
-            resource.EventConfig.OnClientErrorStatus(r => invoked = true);
+            resource.Events.OnClientErrorStatus(r => invoked = true);
             resource.Post(DummyUri, "test");
             invoked.Should().BeTrue();
         }
@@ -295,8 +295,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.Unauthorized.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnClientErrorStatus(r => invoked1 = true);
-            resource.EventConfig.OnClientErrorStatus(r => invoked2 = true);
+            resource.Events.OnClientErrorStatus(r => invoked1 = true);
+            resource.Events.OnClientErrorStatus(r => invoked2 = true);
             resource.Post(DummyUri, "test");
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
@@ -307,7 +307,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.InternalServerError.SetupValidStringlyTypedStub();
             var invoked = false;
-            resource.EventConfig.OnServerErrorStatus(r => invoked = true);
+            resource.Events.OnServerErrorStatus(r => invoked = true);
             resource.Post(DummyUri, "test");
             invoked.Should().BeTrue();
         }
@@ -318,8 +318,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.BadGateway.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnServerErrorStatus(r => invoked1 = true);
-            resource.EventConfig.OnServerErrorStatus(r => invoked2 = true);
+            resource.Events.OnServerErrorStatus(r => invoked1 = true);
+            resource.Events.OnServerErrorStatus(r => invoked2 = true);
             resource.Post(DummyUri, "test");
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
@@ -330,7 +330,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub(new StringContent ("<root/>", Encoding.UTF8, "application/xml"));
             var invoked = false;
-            resource.EventConfig.OnContentMismatch(r => invoked = true);
+            resource.Events.OnContentMismatch(r => invoked = true);
             resource.Post(DummyUri, "test");
             invoked.Should().BeTrue();
         }
@@ -341,8 +341,8 @@ namespace RestKit.Tests
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             var invoked1 = false;
             var invoked2 = false;
-            resource.EventConfig.OnContentMismatch(r => invoked1 = true);
-            resource.EventConfig.OnContentMismatch(r => invoked2 = true);
+            resource.Events.OnContentMismatch(r => invoked1 = true);
+            resource.Events.OnContentMismatch(r => invoked2 = true);
             resource.Post(DummyUri, "test");
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();

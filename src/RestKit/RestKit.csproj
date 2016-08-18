@@ -144,10 +144,11 @@
     <Compile Include="CasingConvention.cs" />
     <Compile Include="ContentHandlers.cs" />
     <Compile Include="IHttpResource.cs" />
-    <Compile Include="IMediaConfiguration.cs" />
+    <Compile Include="IRequestBody{TRequest}.cs" />
     <Compile Include="IEventConfiguration.cs" />
     <Compile Include="MediaChain.cs" />
     <Compile Include="IMediaHandler.cs" />
+    <Compile Include="MediaHandler.cs" />
     <Compile Include="MediaHandler{T}.cs" />
     <Compile Include="ReadOnlySeekableStream.cs" />
     <Compile Include="Resource.cs" />

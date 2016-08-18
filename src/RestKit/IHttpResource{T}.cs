@@ -5,7 +5,7 @@ namespace RestKit
 {
     public interface IHttpResource<TRequest> : IHttpResource
     {
-        IMediaConfiguration<TRequest> MediaHandler { get; }
+        IRequestBody<TRequest> Body { get; }
 
         Representation Post(Uri uri, TRequest resource);
 

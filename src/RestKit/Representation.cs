@@ -80,7 +80,7 @@ namespace RestKit
                 throw new InvalidOperationException($"The representation cannot deserialize because there is no defined handler for media type '{ this.MediaType }'. Ensure a deserializer that handles this media type representation is added to the resource before executing the Http method.");
             }
 
-            return (TReply)this.mediaHandler.Deserialize(this.GetContentAsStream());
+            return (TReply)this.mediaHandler.Deserialize(this.GetContentAsStream(), typeof(TReply));
         }
 
         public XElement GetContentAsXElement()
