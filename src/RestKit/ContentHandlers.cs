@@ -117,6 +117,7 @@ namespace RestKit
 
         private static string Casify(this string value, bool camel)
         {
+            // Intentionally naive:
             var chars = value.ToCharArray();
             if (chars.Length > 0)
             {
