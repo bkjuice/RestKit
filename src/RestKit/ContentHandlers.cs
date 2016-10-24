@@ -8,6 +8,7 @@ namespace RestKit
 {
     internal static class ContentHandlers
     {
+        // TODO: Add support for the HAL specification....
         public static dynamic ToDynamic(this XElement node, XmlConventions conventions)
         {
             var expando = new ExpandoObject();
