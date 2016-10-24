@@ -88,6 +88,7 @@
     <Compile Include="ResourceBehaviorTests.cs" />
     <Compile Include="RepresentationTests.cs" />
     <Compile Include="MediaChainTests.cs" />
+    <Compile Include="HttpClientPoolTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

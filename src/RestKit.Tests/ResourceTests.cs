@@ -21,18 +21,6 @@ namespace RestKit.Tests
         }
 
         [TestMethod]
-        public void ResourceConfigReturnsValidHttpClientForDefaultCtor()
-        {
-            new Resource().Client.Should().NotBeNull();
-        }
-
-        [TestMethod]
-        public void ResourceConfigReturnsValidHttpClientForTestableCtor()
-        {
-            new Resource(new Mock<HttpMessageHandler>().Object).Client.Should().NotBeNull();
-        }
-
-        [TestMethod]
         public void ResourceGetDoesNotThrowInvalidOperationExceptionWhenDeserializerIsSet()
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
@@ -73,10 +61,17 @@ namespace RestKit.Tests
         }
 
         [TestMethod]
-        public void CancelPendingRequestsDoesNotThrowByDefault()
+        public void CancelPendingRequestsDoesNotThrowWhenInitializedWithExplicitClient()
+        {
+            Action test = () => new Resource(new HttpClient()).CancelPendingRequests();
+            test.ShouldNotThrow();
+        }
+
+        [TestMethod]
+        public void CancelPendingRequestsThrowsWhenInitializedForPooledClient()
         {
             Action test = () => new Resource().CancelPendingRequests();
-            test.ShouldNotThrow();
+            test.ShouldThrow<InvalidOperationException>();
         }
 
         [TestMethod]

@@ -144,6 +144,7 @@
     <Compile Include="CasingConvention.cs" />
     <Compile Include="ContentHandlers.cs" />
     <Compile Include="DefaultMedia.cs" />
+    <Compile Include="HttpClientPool.cs" />
     <Compile Include="IHttpResource.cs" />
     <Compile Include="IEventConfiguration.cs" />
     <Compile Include="MediaChain.cs" />

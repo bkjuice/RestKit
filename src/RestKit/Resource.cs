@@ -1,31 +1,36 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace RestKit
 {
-    public partial class Resource : IHttpResource, IDisposable
+    public sealed partial class Resource : IHttpResource
     {
-        private HttpClient client;
+        private static readonly HttpClientPool ClientPool = new HttpClientPool();
+
+        private HttpClient explicitInstance;
 
         private ResourceEventConfiguration eventConfig;
 
         private Action<object, Stream> onSerialize;
 
+        private Action<HttpClient> onClientInit;
+
         private MediaChain mediaChain;
 
-        public Resource() : this(new HttpClient())
+        public Resource() : this(default(HttpClient))
         {
         }
 
-        public Resource(HttpMessageHandler handler) : this(new HttpClient(handler))
+        public Resource(HttpMessageHandler testableHandler) : this(new HttpClient(testableHandler))
         {
         }
 
-        private Resource(HttpClient client)
+        public Resource(HttpClient client)
         {
-            this.client = client;
+            this.explicitInstance = client;
         }
 
         public IEventConfiguration Events
@@ -34,18 +39,10 @@ namespace RestKit
             {
                 if (this.eventConfig == null)
                 {
-                    this.eventConfig = new ResourceEventConfiguration(this.client);
+                    this.eventConfig = new ResourceEventConfiguration(this.GetClientToUse);
                 }
 
                 return this.eventConfig;
-            }
-        }
-
-        public HttpClient Client
-        {
-            get
-            {
-                return this.client;
             }
         }
 
@@ -71,8 +68,8 @@ namespace RestKit
 
         public async Task<Representation> GetAsync(Uri uri)
         {
-            this.eventConfig?.InvokeOnBeforeGet();
-            return this.HandleResult(await this.client.GetAsync(uri).ConfigureAwait(false));
+            this.eventConfig?.InvokeOnBeforeGet(uri);
+            return this.HandleResult(await this.GetClientToUse(uri).GetAsync(uri).ConfigureAwait(false));
         }
 
         public Representation Post<TRequest>(Uri uri, TRequest resource)
@@ -83,8 +80,8 @@ namespace RestKit
         public async Task<Representation> PostAsync<TRequest>(Uri uri, TRequest resource)
         {
             var content = this.SerializeContent(resource);
-            this.eventConfig?.InvokeOnBeforePost(content);
-            return this.HandleResult(await this.client.PostAsync(uri, content).ConfigureAwait(false));
+            this.eventConfig?.InvokeOnBeforePost(content, uri);
+            return this.HandleResult(await this.GetClientToUse(uri).PostAsync(uri, content).ConfigureAwait(false));
         }
 
         public Representation Put<TRequest>(Uri uri, TRequest resource)
@@ -95,8 +92,8 @@ namespace RestKit
         public async Task<Representation> PutAsync<TRequest>(Uri uri, TRequest resource)
         {
             var content = this.SerializeContent(resource);
-            this.eventConfig?.InvokeOnBeforePut(content);
-            return this.HandleResult(await this.client.PutAsync(uri, content).ConfigureAwait(false));
+            this.eventConfig?.InvokeOnBeforePut(content, uri);
+            return this.HandleResult(await this.GetClientToUse(uri).PutAsync(uri, content).ConfigureAwait(false));
         }
 
         public Representation Delete(Uri uri)
@@ -106,27 +103,27 @@ namespace RestKit
 
         public async Task<Representation> DeleteAsync(Uri uri)
         {
-            this.eventConfig?.InvokeOnBeforeDelete();
-            return this.HandleResult(await this.client.DeleteAsync(uri).ConfigureAwait(false));
+            this.eventConfig?.InvokeOnBeforeDelete(uri);
+            return this.HandleResult(await this.GetClientToUse(uri).DeleteAsync(uri).ConfigureAwait(false));
         }
 
         public void CancelPendingRequests()
         {
-            this.client.CancelPendingRequests();
-        }
-
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
+            // There could be a collection of pending requests managed by this instance such that they can all be canceled...
+            // However, this could cancel all pending requests unintentionally for a pooled client.
+            // Throw invalid operation exception to ensure usage is as expected:
+            if (this.explicitInstance == null)
             {
-                this.client?.Dispose();
+                throw new InvalidOperationException("To be able to cancel pending requests, you must initialize the resource with an existing HTTP Client instance that you provided.");
             }
+
+            this.explicitInstance.CancelPendingRequests();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private HttpClient GetClientToUse(Uri uri)
+        {
+            return this.explicitInstance ?? ClientPool.GetClient(uri, this.onClientInit);
         }
 
         private StreamContent SerializeContent(object resource)

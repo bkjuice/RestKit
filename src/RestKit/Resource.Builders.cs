@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace RestKit
 {
-    public partial class Resource
+    public sealed partial class Resource
     {
         public static void SetGlobalMinimumSecurityProtocol(SecurityProtocolType protocolKind)
         {
@@ -18,12 +18,13 @@ namespace RestKit
 
         public static Resource Json(string mediaType = DefaultMedia.ApplicationJson)
         {
+            // This will be a 'pooled' initialization:
             return ConfigureJson(new Resource(), mediaType);
         }
 
-        public static Resource Json(HttpMessageHandler handler, string mediaType = DefaultMedia.ApplicationJson)
+        public static Resource Json(HttpClient client, string mediaType = DefaultMedia.ApplicationJson)
         {
-            return ConfigureJson(new Resource(handler), mediaType);
+            return ConfigureJson(new Resource(client), mediaType);
         }
 
         public static Resource Xml(string mediaType = DefaultMedia.TextXml)
@@ -31,9 +32,9 @@ namespace RestKit
             return ConfigureXml(new Resource(), mediaType);
         }
 
-        public static Resource Xml(HttpMessageHandler handler, string mediaType = DefaultMedia.TextXml)
+        public static Resource Xml(HttpClient client, string mediaType = DefaultMedia.TextXml)
         {
-            return ConfigureXml(new Resource(handler), mediaType);
+            return ConfigureXml(new Resource(client), mediaType);
         }
 
         public static Resource Text(string mediaType = DefaultMedia.TextPlain)
@@ -41,9 +42,9 @@ namespace RestKit
             return ConfigureText(new Resource(), mediaType);
         }
 
-        public static Resource Text(HttpMessageHandler handler, string mediaType = DefaultMedia.TextPlain)
+        public static Resource Text(HttpClient client, string mediaType = DefaultMedia.TextPlain)
         {
-            return ConfigureText(new Resource(handler), mediaType);
+            return ConfigureText(new Resource(client), mediaType);
         }
 
         public static Resource As(string mediaType, Action<object, Stream> serializer, Func<Stream, Type, object> deserializer)
@@ -51,9 +52,9 @@ namespace RestKit
             return ConfigureContent(new Resource(), serializer, deserializer, mediaType);
         }
 
-        public static Resource As(HttpMessageHandler handler, string mediaType, Action<object, Stream> serializer, Func<Stream, Type, object> deserializer)
+        public static Resource As(HttpClient client, string mediaType, Action<object, Stream> serializer, Func<Stream, Type, object> deserializer)
         {
-            return ConfigureContent(new Resource(handler), serializer, deserializer, mediaType);
+            return ConfigureContent(new Resource(client), serializer, deserializer, mediaType);
         }
 
         private static Resource ConfigureJson(Resource resource, string mediaType)
@@ -83,7 +84,7 @@ namespace RestKit
         {
             resource.SetMediaSerializer(serializer);
             resource.AddMediaDeserializer(deserializer, mediaType);
-            resource.Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
+            resource.onClientInit = c => c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
             return resource;
         }
 

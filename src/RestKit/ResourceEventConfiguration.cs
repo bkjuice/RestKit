@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Net.Http;
 
 namespace RestKit
@@ -29,12 +28,12 @@ namespace RestKit
 
         private Action<HttpResponseMessage> onContentMismatch;
 
-        private HttpClient client;
+        private Func<Uri, HttpClient> clientPromise;
 
-        public ResourceEventConfiguration(HttpClient client)
+        public ResourceEventConfiguration(Func<Uri, HttpClient> clientPromise)
         {
-            Contract.Requires<ArgumentNullException>(client != null);
-            this.client = client;
+            Contract.Requires<ArgumentNullException>(clientPromise != null);
+            this.clientPromise = clientPromise;
         }
 
         public void OnBeforeGet(Action<HttpClient> action)
@@ -92,24 +91,24 @@ namespace RestKit
             this.onContentMismatch += action;
         }
 
-        public void InvokeOnBeforeGet()
+        public void InvokeOnBeforeGet(Uri uri)
         {
-            this.onBeforeGet?.Invoke(this.client);
+            this.onBeforeGet?.Invoke(this.clientPromise(uri));
         }
 
-        public void InvokeOnBeforePost(HttpContent content)
+        public void InvokeOnBeforePost(HttpContent content, Uri uri)
         {
-            this.onBeforePost?.Invoke(this.client, content);
+            this.onBeforePost?.Invoke(this.clientPromise(uri), content);
         }
 
-        public void InvokeOnBeforePut(HttpContent content)
+        public void InvokeOnBeforePut(HttpContent content, Uri uri)
         {
-            this.onBeforePut?.Invoke(this.client, content);
+            this.onBeforePut?.Invoke(this.clientPromise(uri), content);
         }
 
-        public void InvokeOnBeforeDelete()
+        public void InvokeOnBeforeDelete(Uri uri)
         {
-            this.onBeforeDelete?.Invoke(this.client);
+            this.onBeforeDelete?.Invoke(this.clientPromise(uri));
         }
 
         public void InvokeReplyActions(Representation representation)

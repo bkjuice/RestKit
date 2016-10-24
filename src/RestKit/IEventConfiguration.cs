@@ -27,7 +27,5 @@ namespace RestKit
         void OnServerErrorStatus(Action<HttpResponseMessage> action);
 
         void OnContentMismatch(Action<HttpResponseMessage> action);
-
-       
     }
 }

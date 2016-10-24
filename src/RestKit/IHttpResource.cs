@@ -5,11 +5,9 @@ using System.Threading.Tasks;
 
 namespace RestKit
 {
-    public interface IHttpResource : IDisposable
+    public interface IHttpResource 
     {
         IEventConfiguration Events { get; }
-
-        HttpClient Client { get; }
 
         Representation Get(Uri uri);
 
