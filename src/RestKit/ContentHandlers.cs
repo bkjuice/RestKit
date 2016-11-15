@@ -118,15 +118,20 @@ namespace RestKit
 
         private static string Casify(this string value, bool camel)
         {
-            // Intentionally naive:
-            var chars = value.ToCharArray();
-            if (chars.Length > 0)
+            if (string.IsNullOrEmpty(value))
             {
-                chars[0] = camel ? char.ToLower(chars[0]) : char.ToUpper(chars[0]);
-                value = new string(chars);
+                return string.Empty;
             }
 
-            return value;
+            // Intentionally naive:
+            if (camel && char.IsLower(value[0]))
+            {
+                return value;
+            }
+
+            var chars = value.ToCharArray();
+            chars[0] = camel ? char.ToLower(chars[0]) : char.ToUpper(chars[0]);
+            return new string(chars);
         }
     }
 }
