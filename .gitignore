@@ -252,3 +252,4 @@ paket-files/
 *.sln.iml
 /src/RestKit/MissingMemberConvention.cs
 /src/RestKit/PropertyBag.cs
+*.snk
