@@ -16,9 +16,9 @@ namespace RestKit
     {
         private const int defaultBufferSize = 4096;
 
-        private MediaHandler mediaHandler;
+        private readonly MediaHandler mediaHandler;
 
-        private Lazy<Task<ReadOnlySeekableStream>> contentCopy;
+        private readonly Lazy<Task<ReadOnlySeekableStream>> contentCopy;
 
         public Representation(HttpResponseMessage reply, MediaChain mediaHandlers = null)
         {

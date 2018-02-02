@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RestKit
 {
-    public sealed partial class Resource : IHttpResource
+    public sealed partial class Resource : IHttpResource, IPreConfiguredResource
     {
         private static readonly HttpClientPool ClientPool = new HttpClientPool();
 
@@ -24,7 +24,7 @@ namespace RestKit
         {
         }
 
-        public Resource(HttpMessageHandler testableHandler) : this(new HttpClient(testableHandler))
+        public Resource(HttpMessageHandler handler) : this(new HttpClient(handler))
         {
         }
 
@@ -46,10 +46,26 @@ namespace RestKit
             }
         }
 
-        public void SetMediaSerializer(Action<object, Stream> serializerAction)
+        Resource IPreConfiguredResource.AsJson(string mediaType) => ConfigureJson(this, mediaType);
+
+        Resource IPreConfiguredResource.AsJson() => ConfigureJson(this, DefaultMedia.ApplicationJson);
+
+        Resource IPreConfiguredResource.AsXml(string mediaType) => ConfigureXml(this, mediaType);
+
+        Resource IPreConfiguredResource.AsXml() => ConfigureXml(this, DefaultMedia.TextXml);
+
+        Resource IPreConfiguredResource.AsText(string mediaType) => ConfigureText(this, mediaType);
+
+        Resource IPreConfiguredResource.AsText() => ConfigureText(this, DefaultMedia.TextPlain);
+
+        Resource IPreConfiguredResource.AsMedia(string mediaType, Action<object, Stream> serializer, Func<Stream, Type, object> deserializer)
         {
-            this.onSerialize = serializerAction;
+            return ConfigureContent(this, serializer, deserializer, mediaType);
         }
+
+        Resource IPreConfiguredResource.AsRaw() => this;
+
+        public void SetMediaSerializer(Action<object, Stream> serializerAction) => this.onSerialize = serializerAction;
 
         public void AddMediaDeserializer(Func<Stream, Type, object> deserializerFunc, string mediaType)
         {
@@ -61,48 +77,40 @@ namespace RestKit
             this.mediaChain.AddHandler(new MediaHandler(deserializerFunc, mediaType));
         }
 
-        public Representation Get(Uri uri)
-        {
-            return this.GetAsync(uri).Result;
-        }
+        public Representation Get(Uri uri) => this.GetAsync(uri).ConfigureAwait(false).GetAwaiter().GetResult();
 
         public async Task<Representation> GetAsync(Uri uri)
         {
+            this.eventConfig?.InvokeOnBeforeAction(uri);
             this.eventConfig?.InvokeOnBeforeGet(uri);
             return this.HandleResult(await this.GetClientToUse(uri).GetAsync(uri).ConfigureAwait(false));
         }
 
-        public Representation Post<TRequest>(Uri uri, TRequest resource)
-        {
-            return this.PostAsync(uri, resource).Result;
-        }
+        public Representation Post<TRequest>(Uri uri, TRequest resource) => this.PostAsync(uri, resource).ConfigureAwait(false).GetAwaiter().GetResult();
 
         public async Task<Representation> PostAsync<TRequest>(Uri uri, TRequest resource)
         {
+            this.eventConfig?.InvokeOnBeforeAction(uri);
             var content = this.SerializeContent(resource);
             this.eventConfig?.InvokeOnBeforePost(content, uri);
             return this.HandleResult(await this.GetClientToUse(uri).PostAsync(uri, content).ConfigureAwait(false));
         }
 
-        public Representation Put<TRequest>(Uri uri, TRequest resource)
-        {
-            return this.PutAsync(uri, resource).Result;
-        }
+        public Representation Put<TRequest>(Uri uri, TRequest resource) => this.PutAsync(uri, resource).ConfigureAwait(false).GetAwaiter().GetResult();
 
         public async Task<Representation> PutAsync<TRequest>(Uri uri, TRequest resource)
         {
+            this.eventConfig?.InvokeOnBeforeAction(uri);
             var content = this.SerializeContent(resource);
             this.eventConfig?.InvokeOnBeforePut(content, uri);
             return this.HandleResult(await this.GetClientToUse(uri).PutAsync(uri, content).ConfigureAwait(false));
         }
 
-        public Representation Delete(Uri uri)
-        {
-            return this.DeleteAsync(uri).Result;
-        }
+        public Representation Delete(Uri uri) => this.DeleteAsync(uri).ConfigureAwait(false).GetAwaiter().GetResult();
 
         public async Task<Representation> DeleteAsync(Uri uri)
         {
+            this.eventConfig?.InvokeOnBeforeAction(uri);
             this.eventConfig?.InvokeOnBeforeDelete(uri);
             return this.HandleResult(await this.GetClientToUse(uri).DeleteAsync(uri).ConfigureAwait(false));
         }
@@ -121,10 +129,7 @@ namespace RestKit
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private HttpClient GetClientToUse(Uri uri)
-        {
-            return this.explicitInstance ?? ClientPool.GetClient(uri, this.onClientInit);
-        }
+        private HttpClient GetClientToUse(Uri uri) => this.explicitInstance ?? ClientPool.GetClient(uri, this.onClientInit);
 
         private StreamContent SerializeContent(object resource)
         {

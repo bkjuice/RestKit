@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RestKit.TestLib;
 using RestKit.Tests.Content;
 
 namespace RestKit.Tests

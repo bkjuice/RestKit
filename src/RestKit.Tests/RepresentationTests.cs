@@ -3,6 +3,7 @@ using System.Net;
 using System.Xml;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RestKit.TestLib;
 using RestKit.Tests.Content;
 
 namespace RestKit.Tests

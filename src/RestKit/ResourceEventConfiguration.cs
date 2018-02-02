@@ -6,6 +6,10 @@ namespace RestKit
 {
     public class ResourceEventConfiguration : IEventConfiguration
     {
+        private readonly Func<Uri, HttpClient> clientPromise;
+
+        private Action<HttpClient> onBeforeAction;
+
         private Action<HttpClient> onBeforeGet;
 
         private Action<HttpClient, HttpContent> onBeforePost;
@@ -28,12 +32,15 @@ namespace RestKit
 
         private Action<HttpResponseMessage> onContentMismatch;
 
-        private Func<Uri, HttpClient> clientPromise;
-
         public ResourceEventConfiguration(Func<Uri, HttpClient> clientPromise)
         {
             Contract.Requires<ArgumentNullException>(clientPromise != null);
             this.clientPromise = clientPromise;
+        }
+
+        public void OnBeforeAction(Action<HttpClient> action)
+        {
+            this.onBeforeAction += action;
         }
 
         public void OnBeforeGet(Action<HttpClient> action)
@@ -91,6 +98,11 @@ namespace RestKit
             this.onContentMismatch += action;
         }
 
+        public void InvokeOnBeforeAction(Uri uri)
+        {
+            this.onBeforeAction?.Invoke(this.clientPromise(uri));
+        }
+
         public void InvokeOnBeforeGet(Uri uri)
         {
             this.onBeforeGet?.Invoke(this.clientPromise(uri));
@@ -113,8 +125,6 @@ namespace RestKit
 
         public void InvokeReplyActions(Representation representation)
         {
-            var statusCode = (int)representation.StatusCode;
-
             var message = representation.Message;
             this.onReply?.Invoke(message);
             

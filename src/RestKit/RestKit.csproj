@@ -147,6 +147,7 @@
     <Compile Include="HttpClientPool.cs" />
     <Compile Include="IHttpResource.cs" />
     <Compile Include="IEventConfiguration.cs" />
+    <Compile Include="IPreConfiguredResource.cs" />
     <Compile Include="MediaChain.cs" />
     <Compile Include="MediaHandler.cs" />
     <Compile Include="ReadOnlySeekableStream.cs" />

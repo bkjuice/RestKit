@@ -16,6 +16,21 @@ namespace RestKit
             ServicePointManager.SecurityProtocol = protocolKind;
         }
 
+        public static IPreConfiguredResource UsingWindowsAuth()
+        {
+            return UsingWindowsAuth(new HttpClientHandler());
+        }
+
+        public static IPreConfiguredResource UsingWindowsAuth(HttpClientHandler handler)
+        {
+            handler.UseDefaultCredentials = true;
+            handler.PreAuthenticate = true;
+            handler.ClientCertificateOptions = ClientCertificateOption.Automatic;
+            handler.Credentials = CredentialCache.DefaultNetworkCredentials;
+            var client = new HttpClient(handler);
+            return new Resource(client);
+        }
+
         public static Resource Json(string mediaType = DefaultMedia.ApplicationJson)
         {
             // This will be a 'pooled' initialization:

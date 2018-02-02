@@ -11,7 +11,7 @@
     <description>
       Using RestKit is as simple as 'representation = Resource.Json().Get(uri)', then 'representation.GetContentAsJson()'. You can therefore handle unexpected content. Variations exist for Xml and Text. For advanced scenarios, you have full control of serialization, a callback pipeline, and full access to the underlying HttpClient and HttpResponseMessage. Use of RestKit is mockable using the IHttpResource interface and/or by injecting a mock HttpMessageHandler into a stub.
     </description>
-    <copyright>Copyright ©  2016</copyright>
+    <copyright>Copyright ©  2018</copyright>
     <licenseUrl>https://github.com/bkjuice/RestKit/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/bkjuice/ResKit</projectUrl>
     <tags>REST "Http Client" JSON XML HTTP</tags>

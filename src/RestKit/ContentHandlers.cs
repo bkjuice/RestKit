@@ -66,21 +66,39 @@ namespace RestKit
             foreach (var pair in input)
             {
                 var key = pair.Key.AsCase(casing);
-                if (pair.Value is IDictionary<string, object>)
-                {
-                    bucket.Add(key, ((IDictionary<string, object>)pair.Value).ToDynamic(casing));
-                }
-                else if (pair.Value is ICollection)
-                {
-                    bucket.Add(key, ((ICollection)pair.Value).BuildExpandoJsonArray(casing));
-                }
-                else
+                if (!TryAddAsNestedDictionary(bucket, key, pair.Value, casing) &&
+                    !TryAddAsCollection(bucket, key, pair.Value, casing))
                 {
                     bucket.Add(key, pair.Value);
+
                 }
             }
 
             return expando;
+        }
+
+        private static bool TryAddAsNestedDictionary(IDictionary<string, object> bucket, string key, object value, CasingConvention casing)
+        {
+            var nested = value as IDictionary<string, object>;
+            if (nested != null)
+            {
+                bucket.Add(key, nested.ToDynamic(casing));
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryAddAsCollection(IDictionary<string, object> bucket, string key, object value, CasingConvention casing)
+        {
+            var collection = value as ICollection;
+            if (collection != null)
+            {
+                bucket.Add(key, collection.BuildExpandoJsonArray(casing));
+                return true;
+            }
+
+            return false;
         }
 
         private static List<object> BuildExpandoJsonArray(this IEnumerable values, CasingConvention casing)
@@ -88,9 +106,10 @@ namespace RestKit
             var items = new List<object>();
             foreach (var item in values)
             {
-                if (item is IDictionary<string, object>)
+                var nested = item as IDictionary<string, object>;
+                if (nested != null)
                 {
-                    items.Add(((IDictionary<string, object>)item).ToDynamic(casing));
+                    items.Add(nested.ToDynamic(casing));
                 }
                 else
                 {

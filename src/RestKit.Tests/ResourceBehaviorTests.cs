@@ -2,6 +2,7 @@
 using System.Net;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RestKit.TestLib;
 
 namespace RestKit.Tests
 {

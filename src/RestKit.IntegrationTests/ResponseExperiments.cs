@@ -11,7 +11,7 @@ namespace RestKit.IntegrationTests
         [TestMethod]
         public void RedirectForNonTLSGoogle()
         {
-            var result = Resource.Text().Get(new Uri("http://www.google.com"));
+           Resource.Text().Get(new Uri("http://www.google.com"));
         }
 
         [TestMethod]

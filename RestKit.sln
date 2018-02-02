@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestKit.Tests", "src\RestKi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestKit.IntegrationTests", "src\RestKit.IntegrationTests\RestKit.IntegrationTests.csproj", "{BFD78411-96A2-4EDE-96B1-93007BAB69CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestKit.TestLib", "src\RestKit.TestLib\RestKit.TestLib.csproj", "{4808952D-E345-4F7F-8FB4-F37681CA3656}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{BFD78411-96A2-4EDE-96B1-93007BAB69CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFD78411-96A2-4EDE-96B1-93007BAB69CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFD78411-96A2-4EDE-96B1-93007BAB69CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4808952D-E345-4F7F-8FB4-F37681CA3656}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4808952D-E345-4F7F-8FB4-F37681CA3656}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4808952D-E345-4F7F-8FB4-F37681CA3656}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4808952D-E345-4F7F-8FB4-F37681CA3656}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,5 +42,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{F22776B8-60ED-4FB1-A73E-D689C8522A89} = {0B2E26DE-B2BA-4F53-B342-2F96EB6443DC}
 		{BFD78411-96A2-4EDE-96B1-93007BAB69CD} = {0B2E26DE-B2BA-4F53-B342-2F96EB6443DC}
+		{4808952D-E345-4F7F-8FB4-F37681CA3656} = {0B2E26DE-B2BA-4F53-B342-2F96EB6443DC}
 	EndGlobalSection
 EndGlobal

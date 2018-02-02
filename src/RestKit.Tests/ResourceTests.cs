@@ -1,11 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+using RestKit.TestLib;
 
 namespace RestKit.Tests
 {
