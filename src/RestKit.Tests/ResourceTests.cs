@@ -14,6 +14,14 @@ namespace RestKit.Tests
         private static readonly Uri DummyUri = new Uri("http://nowhere.com");
 
         [TestMethod]
+        public void ResourceWillPassBufferSettingToRepresentation()
+        {
+            var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub(doNotBuffer: true);
+            var representation = resource.Get(new Uri("http://nowhere.com"));
+            representation.Buffered.Should().BeFalse();
+        }
+
+        [TestMethod]
         public void ResourceConfigIsNotNullOnGet()
         {
             new Resource().Events.Should().NotBeNull();
@@ -341,44 +349,5 @@ namespace RestKit.Tests
             invoked1.Should().BeTrue();
             invoked2.Should().BeTrue();
         }
-
-        ////[TestMethod]
-        ////public void SetCanReadContentWillInvokeMethod()
-        ////{
-        ////    var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
-
-        ////    var invoked = false;
-        ////    resource.SetCanDeserialize(r => invoked = true);
-        ////    var result = resource.Get(DummyUri);
-        ////    invoked.Should().BeTrue();
-        ////}
-
-        ////[TestMethod]
-        ////public void SetCanReadContentWillInvokeLastSetMethod()
-        ////{
-        ////    var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
-
-        ////    var invoked1 = false;
-        ////    var invoked2 = false;
-        ////    resource.SetCanDeserialize(r => invoked1 = true);
-        ////    resource.SetCanDeserialize(r => invoked2 = true);
-        ////    var result = resource.Get(DummyUri);
-        ////    invoked1.Should().BeFalse();
-        ////    invoked2.Should().BeTrue();
-        ////}
-
-        ////[TestMethod]
-        ////public void SetCanReadContentIgnoresNullMethod()
-        ////{
-        ////    var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
-
-        ////    var invoked1 = false;
-        ////    var invoked2 = false;
-        ////    resource.SetCanDeserialize(r => invoked1 = true);
-        ////    resource.SetCanDeserialize(null);
-        ////    var result = resource.Get(DummyUri);
-        ////    invoked1.Should().BeTrue();
-        ////    invoked2.Should().BeFalse();
-        ////}
     }
 }

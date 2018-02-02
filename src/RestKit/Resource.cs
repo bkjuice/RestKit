@@ -46,6 +46,8 @@ namespace RestKit
             }
         }
 
+        public bool DoNotBuffer { get; set; }
+
         Resource IPreConfiguredResource.AsJson(string mediaType) => ConfigureJson(this, mediaType);
 
         Resource IPreConfiguredResource.AsJson() => ConfigureJson(this, DefaultMedia.ApplicationJson);
@@ -149,7 +151,7 @@ namespace RestKit
         private Representation HandleResult(HttpResponseMessage reply)
         {
             // TODO: handle 100 and 300 codes, and allow for retry via RetryPolicy, with no touch defaults
-            var result = new Representation(reply, this.mediaChain);
+            var result = new Representation(reply, !DoNotBuffer, this.mediaChain);
             this.eventConfig?.InvokeReplyActions(result);
             return result;
         }

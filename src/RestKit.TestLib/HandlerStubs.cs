@@ -35,15 +35,16 @@ namespace RestKit.TestLib
             return handler;
         }
 
-        public static Resource SetupValidStringlyTypedStub(this HttpStatusCode expectedStatus, string content = "test content")
+        public static Resource SetupValidStringlyTypedStub(this HttpStatusCode expectedStatus, string content = "test content", bool doNotBuffer = false)
         {
-            return expectedStatus.SetupValidStringlyTypedStub(new StringContent(content, Encoding.UTF8, "text/plain"));
+            return expectedStatus.SetupValidStringlyTypedStub(new StringContent(content, Encoding.UTF8, "text/plain"), doNotBuffer);
         }
 
-        public static Resource SetupValidStringlyTypedStub(this HttpStatusCode expectedStatus, HttpContent content)
+        public static Resource SetupValidStringlyTypedStub(this HttpStatusCode expectedStatus, HttpContent content, bool doNotBuffer = false)
         {
             var handler = expectedStatus.BuildHandler(content);
             var resource = new Resource(handler);
+            resource.DoNotBuffer = doNotBuffer;
             resource.AddMediaDeserializer((s, t) => new StreamReader(s).ReadToEnd(), "text/plain");
             resource.SetMediaSerializer((s, io) => new StreamWriter(io).Write(s));
             return resource;

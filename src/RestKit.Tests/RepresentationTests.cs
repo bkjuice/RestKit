@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
 using System.Xml;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,10 +13,21 @@ namespace RestKit.Tests
     public class RepresentationTests
     {
         [TestMethod]
+        public void CanReadUnbufferedStreamContent()
+        {
+            var response = HttpStatusCode.OK.CreateResponseMessage("{ \"test\":\"value\"}".CreateStream(), "application/json");
+            var representation = CreateRepresentation(response, false);
+            var json = representation.GetContentAsJson();
+
+            string value = json.test;
+            value.Should().Be("value");
+        }
+
+        [TestMethod]
         public void HasNoContentIsTrueForStatus204()
         {
             var response = HttpStatusCode.NoContent.CreateResponseMessage("".CreateStream(), "application/json");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             representation.HasNoContent.Should().BeTrue();
         }
 
@@ -23,7 +35,7 @@ namespace RestKit.Tests
         public void HasNoContentIsTrueForEmptyContentStatus200()
         {
             var response = HttpStatusCode.OK.CreateResponseMessage("".CreateStream(), "application/json");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             representation.HasNoContent.Should().BeTrue();
         }
 
@@ -31,7 +43,7 @@ namespace RestKit.Tests
         public void DisposeWillDisposeUnderlyingMessage()
         {
             var response = HttpStatusCode.OK.CreateResponseMessage("{ \"test\":\"value\"}".CreateStream(), "application/json");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             representation.Dispose();
 
             Action test = () => { var s = representation.Message.Content.ReadAsStreamAsync().Result; };
@@ -42,7 +54,7 @@ namespace RestKit.Tests
         public void DeserializeThrowsInvalidOperationExceptionWhenCanSerializeIsFalse()
         {
             var response = HttpStatusCode.OK.CreateResponseMessage("{ \"test\":\"value\"}".CreateStream(), "application/json");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             representation.CanDeserialize.Should().BeFalse();
 
             Action test = () => representation.Deserialize<SimpleItem>();
@@ -53,7 +65,7 @@ namespace RestKit.Tests
         public void RepresentationIdentifiesUnexpectedContent()
         {
             var response = HttpStatusCode.OK.CreateResponseMessage("{ \"test\":\"value\"}".CreateStream(), "application/json", "text/html");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             representation.IsUnexpectedMediaType.Should().BeTrue();
         }
 
@@ -61,7 +73,7 @@ namespace RestKit.Tests
         public void RepresentationIdentifiesExpectedContent()
         {
             var response = HttpStatusCode.OK.CreateResponseMessage("{ \"test\":\"value\"}".CreateStream(), "application/json", "application/json");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             representation.IsUnexpectedMediaType.Should().BeFalse();
         }
 
@@ -69,7 +81,7 @@ namespace RestKit.Tests
         public void JsonContentAsDynamicWorksWithFlatJsonAsIsCasing()
         {
             var response = HttpStatusCode.OK.CreateResponseMessage("{ \"test\":\"value\"}".CreateStream(), "application/json");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var json = representation.GetContentAsJson();
 
             string value = json.test;
@@ -80,7 +92,7 @@ namespace RestKit.Tests
         public void JsonContentAsDynamicWorksWithFlatJsonTitleCasing()
         {
             var response = HttpStatusCode.OK.CreateResponseMessage("{ \"test\":\"value\"}".CreateStream(), "application/json");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var json = representation.GetContentAsJson(CasingConvention.Pascalish);
 
             string value = json.Test;
@@ -91,7 +103,7 @@ namespace RestKit.Tests
         public void JsonContentAsDynamicWorksWithFlatJsonCamelCasing()
         {
             var response = HttpStatusCode.OK.CreateResponseMessage("{ \"Test\":\"value\"}".CreateStream(), "application/json");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var json = representation.GetContentAsJson(CasingConvention.Camelish);
 
             string value = json.test;
@@ -102,7 +114,7 @@ namespace RestKit.Tests
         public void JsonContentAsDynamicWorksWithJsonArray()
         {
             var response = HttpStatusCode.OK.CreateResponseMessage("{ \"test\":[\"value1\",\"value2\",\"value3\"]}".CreateStream(), "application/json");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var json = representation.GetContentAsJson();
 
             var values = json.test;
@@ -117,7 +129,7 @@ namespace RestKit.Tests
                 "{ \"test\": {\"prop1\":\"value1\",\"prop2\":\"value2\",\"prop3\":\"value3\"}}".CreateStream(),
                 "application/json");
           
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var json = representation.GetContentAsJson();
 
             var obj = json.test;
@@ -138,7 +150,7 @@ namespace RestKit.Tests
                 "{ \"test\": [{\"prop1\":\"value1\",\"prop2\":\"value2\",\"prop3\":\"value3\"}, {\"prop1\":\"value1\",\"prop2\":\"value2\",\"prop3\":\"value3\"}]}".CreateStream(),
                 "application/json");
 
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var json = representation.GetContentAsJson();
 
             var jarray = json.test;
@@ -167,7 +179,7 @@ namespace RestKit.Tests
             </root>";
 
             var response = HttpStatusCode.OK.CreateResponseMessage(xmlData.CreateStream(), "text/xml");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var root = representation.GetContentAsXml();
 
             string attr1 = root.Attributes.attr1;
@@ -206,7 +218,7 @@ namespace RestKit.Tests
             </root>";
 
             var response = HttpStatusCode.OK.CreateResponseMessage(xmlData.CreateStream(), "text/xml");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var root = representation.GetContentAsXml();
 
             string attr1 = root.Attributes.attr1;
@@ -244,7 +256,7 @@ namespace RestKit.Tests
             @"<root>simple</root>";
 
             var response = HttpStatusCode.OK.CreateResponseMessage(xmlData.CreateStream(), "text/xml");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var root = representation.GetContentAsXml();
 
             string simple = root.Value;
@@ -265,7 +277,7 @@ namespace RestKit.Tests
             </root>";
 
             var response = HttpStatusCode.OK.CreateResponseMessage(xmlData.CreateStream(), "text/xml");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var conventions = new XmlConventions
             {
                 AttributeContainerName = "Attrs",
@@ -308,7 +320,7 @@ namespace RestKit.Tests
             </root>";
 
             var response = HttpStatusCode.OK.CreateResponseMessage(xmlData.CreateStream(), "text/xml");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var reader = representation.GetContentAsXmlReader();
             reader.MoveToContent().Should().Be(XmlNodeType.Element);
             // Trust the XmlReader works from here...
@@ -328,10 +340,15 @@ namespace RestKit.Tests
             </root>";
 
             var response = HttpStatusCode.OK.CreateResponseMessage(xmlData.CreateStream(), "text/xml");
-            var representation = new Representation(response);
+            var representation = CreateRepresentation(response);
             var xdoc = representation.GetContentAsXDocument();
             xdoc.Element("root").Should().NotBeNull();
             // trust XDocument works from here...
+        }
+
+        private static Representation CreateRepresentation(HttpResponseMessage response, bool buffered = true)
+        {
+            return new Representation(response, buffered);
         }
     }
 }
