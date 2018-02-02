@@ -13,7 +13,7 @@
     </description>
     <copyright>Copyright ©  2018</copyright>
     <licenseUrl>https://github.com/bkjuice/RestKit/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/bkjuice/ResKit</projectUrl>
+    <projectUrl>https://github.com/bkjuice/RestKit</projectUrl>
     <tags>REST "Http Client" JSON XML HTTP</tags>
   </metadata>
 </package>
