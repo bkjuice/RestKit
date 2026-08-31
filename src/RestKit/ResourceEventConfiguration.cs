@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
 using System.Net.Http;
 
 namespace RestKit
@@ -34,7 +33,7 @@ namespace RestKit
 
         public ResourceEventConfiguration(Func<Uri, HttpClient> clientPromise)
         {
-            Contract.Requires<ArgumentNullException>(clientPromise != null);
+            clientPromise.DisallowNull(nameof(clientPromise));
             this.clientPromise = clientPromise;
         }
 

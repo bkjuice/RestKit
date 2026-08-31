@@ -47,7 +47,7 @@ namespace RestKit.Tests
             representation.Dispose();
 
             Action test = () => { var s = representation.Message.Content.ReadAsStreamAsync().Result; };
-            test.ShouldThrow<ObjectDisposedException>();
+            test.Should().Throw<ObjectDisposedException>();
         }
 
         [TestMethod]
@@ -58,7 +58,7 @@ namespace RestKit.Tests
             representation.CanDeserialize.Should().BeFalse();
 
             Action test = () => representation.Deserialize<SimpleItem>();
-            test.ShouldThrow<InvalidOperationException>();
+            test.Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]

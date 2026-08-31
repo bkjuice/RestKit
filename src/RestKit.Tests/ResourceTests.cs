@@ -32,7 +32,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             Action test = () => resource.Get(DummyUri);
-            test.ShouldNotThrow<InvalidOperationException>();
+            test.Should().NotThrow<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@ namespace RestKit.Tests
         {
             var handler = HttpStatusCode.OK.BuildHandler();
             Action test = () => new Resource(handler).Post(DummyUri, "test");
-            test.ShouldThrow<InvalidOperationException>();
+            test.Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             Action test = () => resource.Post(DummyUri, "test");
-            test.ShouldNotThrow<InvalidOperationException>();
+            test.Should().NotThrow<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace RestKit.Tests
         {
             var handler = HttpStatusCode.OK.BuildHandler();
             Action test = () => new Resource(handler).Put(DummyUri, "test");
-            test.ShouldThrow<InvalidOperationException>();
+            test.Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -64,21 +64,21 @@ namespace RestKit.Tests
         {
             var resource = HttpStatusCode.OK.SetupValidStringlyTypedStub();
             Action test = () => resource.Put(DummyUri, "test");
-            test.ShouldNotThrow<InvalidOperationException>();
+            test.Should().NotThrow<InvalidOperationException>();
         }
 
         [TestMethod]
         public void CancelPendingRequestsDoesNotThrowWhenInitializedWithExplicitClient()
         {
             Action test = () => new Resource(new HttpClient()).CancelPendingRequests();
-            test.ShouldNotThrow();
+            test.Should().NotThrow();
         }
 
         [TestMethod]
         public void CancelPendingRequestsThrowsWhenInitializedForPooledClient()
         {
             Action test = () => new Resource().CancelPendingRequests();
-            test.ShouldThrow<InvalidOperationException>();
+            test.Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]

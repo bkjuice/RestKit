@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
 using System.IO;
 
 namespace RestKit
 {
     public class MediaHandler
     {
-        private Func<Stream, Type, object> handler;
+        private readonly Func<Stream, Type, object> handler;
 
-        private string expectedMediaType;
+        private readonly string expectedMediaType;
 
         public MediaHandler(Func<Stream, Type, object> handler, string expectedMediaType)
         {
-            Contract.Requires<ArgumentNullException>(handler != null);
-            Contract.Requires<ArgumentNullException>(string.IsNullOrEmpty(expectedMediaType) == false);
+            handler.DisallowNull(nameof(handler));
+            expectedMediaType.DisallowNullOrEmpty(nameof(expectedMediaType));
 
             this.handler = handler;
             this.expectedMediaType = expectedMediaType;
@@ -26,7 +25,7 @@ namespace RestKit
 
         public object Deserialize(Stream content, Type target)
         {
-            Contract.Requires<ArgumentNullException>(content != null);
+            content.DisallowNull(nameof(content));
             return this.handler(content, target);
         }
     }

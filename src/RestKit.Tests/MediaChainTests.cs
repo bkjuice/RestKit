@@ -16,7 +16,7 @@ namespace RestKit.Tests
             chain.AddHandler(null);
 
             Action test = () => { chain.GetHandlerFor("test").Should().BeNull(); };
-            test.ShouldNotThrow();
+            test.Should().NotThrow();
         }
     }
 }

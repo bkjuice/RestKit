@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -11,11 +10,6 @@ namespace RestKit
 {
     public sealed partial class Resource
     {
-        public static void SetGlobalMinimumSecurityProtocol(SecurityProtocolType protocolKind)
-        {
-            ServicePointManager.SecurityProtocol = protocolKind;
-        }
-
         public static IPreConfiguredResource UsingWindowsAuth()
         {
             return UsingWindowsAuth(new HttpClientHandler());
@@ -105,8 +99,8 @@ namespace RestKit
 
         private static object DeserializeJson(Stream json, Type t)
         {
-            Contract.Requires<ArgumentNullException>(t != null);
-            Contract.Requires<ArgumentNullException>(json != null);
+            t.DisallowNull(nameof(t));
+            json.DisallowNull(nameof(json));
 
             var serializer = new DataContractJsonSerializer(t);
             using (var reader = new StreamReader(json))
@@ -117,8 +111,8 @@ namespace RestKit
 
         private static void SerializeJson(object resource, Stream output)
         {
-            Contract.Requires<ArgumentNullException>(resource != null);
-            Contract.Requires<ArgumentNullException>(output != null);
+            resource.DisallowNull(nameof(resource));
+            output.DisallowNull(nameof(output));
 
             var serializer = new DataContractJsonSerializer(resource.GetType());
             serializer.WriteObject(output, resource);
@@ -126,8 +120,8 @@ namespace RestKit
 
         private static object DeserializeXml(Stream xml, Type t)
         {
-            Contract.Requires<ArgumentNullException>(t != null);
-            Contract.Requires<ArgumentNullException>(xml != null);
+            t.DisallowNull(nameof(t));
+            xml.DisallowNull(nameof(xml));
 
             var serializer = new XmlSerializer(t);
             return serializer.Deserialize(xml);
@@ -135,8 +129,8 @@ namespace RestKit
 
         private static void SerializeXml(object resource, Stream output)
         {
-            Contract.Requires<ArgumentNullException>(resource != null);
-            Contract.Requires<ArgumentNullException>(output != null);
+            resource.DisallowNull(nameof(resource));
+            output.DisallowNull(nameof(output));
 
             var serializer = new XmlSerializer(resource.GetType());
             serializer.Serialize(output, resource);

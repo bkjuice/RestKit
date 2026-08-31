@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
 using System.IO;
 
 namespace RestKit
@@ -9,7 +8,7 @@ namespace RestKit
     /// </summary>
     public class ReadOnlySeekableStream : Stream
     {
-        private Stream underlyingStream;
+        private readonly Stream underlyingStream;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReadOnlySeekableStream" /> class.
@@ -17,9 +16,7 @@ namespace RestKit
         /// <param name="underlyingStream">The underlying stream to be read.</param>
         public ReadOnlySeekableStream(Stream underlyingStream)
         {
-            Contract.Requires<ArgumentNullException>(underlyingStream != null);
-
-            this.underlyingStream = underlyingStream;
+            this.underlyingStream = underlyingStream ?? new MemoryStream(new byte[0]);
         }
 
         /// <summary>

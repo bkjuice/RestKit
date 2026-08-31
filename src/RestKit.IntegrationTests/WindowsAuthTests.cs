@@ -15,7 +15,7 @@ namespace RestKit.IntegrationTests
             // For this test to run, you must set up a valid http endpoint that challenges for windows auth:
             Action test = () => Resource.UsingWindowsAuth().AsJson().Get(new Uri("http://??"));
             //// test.ShouldNotThrow();
-            test.ShouldThrow<Exception>();
+            test.Should().Throw<Exception>();
         }
     }
 }

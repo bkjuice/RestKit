@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -22,7 +21,7 @@ namespace RestKit
 
         public Representation(HttpResponseMessage reply, bool buffered, MediaChain mediaHandlers = null)
         {
-            Contract.Requires<ArgumentNullException>(reply != null);
+            reply.DisallowNull(nameof(reply));
 
             this.Message = reply;
             this.contentCopy = new Lazy<Task<ReadOnlySeekableStream>>(this.InitializeBufferedContent);
@@ -118,12 +117,56 @@ namespace RestKit
                 LoadOptions.PreserveWhitespace);
         }
 
-        public async Task<XmlReader> GetContentAsXmlReaderAsync()
+        public async Task<XmlReader> GetContentAsXmlReaderAsync() => new XmlTextReader(await this.GetContentAsStreamAsync().ConfigureAwait(false));
+
+        public async Task<Dictionary<string, object>> GetContentAsJsonMapAsync()
         {
-            return new XmlTextReader(await this.GetContentAsStreamAsync().ConfigureAwait(false));
+            using var document = JsonDocument.Parse(await this.GetContentAsTextAsync().ConfigureAwait(false));
+            return (Dictionary<string, object>)ToObjectGraph(document.RootElement);
         }
 
-        public async Task<Dictionary<string, object>> GetContentAsJsonMapAsync() => new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(await this.GetContentAsTextAsync().ConfigureAwait(false));
+        // Replaces the old JavaScriptSerializer.Deserialize<Dictionary<string, object>>() behavior:
+        // nested objects become Dictionary<string, object>, arrays become List<object>, so ToDynamic's
+        // pattern matching (IDictionary<string, object> / ICollection) keeps working unchanged. Plain
+        // System.Text.Json would instead box nested/unknown values as JsonElement.
+        private static object ToObjectGraph(JsonElement element)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    var map = new Dictionary<string, object>();
+                    foreach (var property in element.EnumerateObject())
+                    {
+                        map[property.Name] = ToObjectGraph(property.Value);
+                    }
+
+                    return map;
+
+                case JsonValueKind.Array:
+                    var list = new List<object>();
+                    foreach (var item in element.EnumerateArray())
+                    {
+                        list.Add(ToObjectGraph(item));
+                    }
+
+                    return list;
+
+                case JsonValueKind.String:
+                    return element.GetString();
+
+                case JsonValueKind.Number:
+                    return element.TryGetInt64(out var integer) ? (object)integer : element.GetDouble();
+
+                case JsonValueKind.True:
+                    return true;
+
+                case JsonValueKind.False:
+                    return false;
+
+                default:
+                    return null;
+            }
+        }
 
         public async Task<dynamic> GetContentAsJsonAsync(CasingConvention casing = CasingConvention.AsIs) => (await this.GetContentAsJsonMapAsync().ConfigureAwait(false)).ToDynamic(casing);
 
@@ -142,12 +185,9 @@ namespace RestKit
             }
         }
 
-        private async Task<ReadOnlySeekableStream> InitializeBufferedContent()
-        {
-            return new ReadOnlySeekableStream(await ReadContent().ConfigureAwait(false));
-        }
+        private async Task<ReadOnlySeekableStream> InitializeBufferedContent() => new ReadOnlySeekableStream(await ReadContent().ConfigureAwait(false));
 
-        private  async Task<Stream> ReadContent()
+        private async Task<Stream> ReadContent()
         {
             var source = await this.Message.Content.ReadAsStreamAsync().ConfigureAwait(false);
             if (!Buffered) return source;

@@ -1,192 +1,52 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DE3A6223-AF0A-4583-BDFB-63957829E7BA}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>RestKit</RootNamespace>
     <AssemblyName>RestKit</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <CodeContractsAssemblyMode>1</CodeContractsAssemblyMode>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <WarningLevel>4</WarningLevel>
-    <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
-    <CodeContractsRuntimeOnlyPublicSurface>True</CodeContractsRuntimeOnlyPublicSurface>
-    <CodeContractsRuntimeThrowOnFailure>False</CodeContractsRuntimeThrowOnFailure>
-    <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
-    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
-    <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
-    <CodeContractsNonNullObligations>True</CodeContractsNonNullObligations>
-    <CodeContractsBoundsObligations>True</CodeContractsBoundsObligations>
-    <CodeContractsArithmeticObligations>True</CodeContractsArithmeticObligations>
-    <CodeContractsEnumObligations>True</CodeContractsEnumObligations>
-    <CodeContractsRedundantAssumptions>True</CodeContractsRedundantAssumptions>
-    <CodeContractsAssertsToContractsCheckBox>True</CodeContractsAssertsToContractsCheckBox>
-    <CodeContractsRedundantTests>True</CodeContractsRedundantTests>
-    <CodeContractsMissingPublicRequiresAsWarnings>True</CodeContractsMissingPublicRequiresAsWarnings>
-    <CodeContractsMissingPublicEnsuresAsWarnings>False</CodeContractsMissingPublicEnsuresAsWarnings>
-    <CodeContractsInferRequires>True</CodeContractsInferRequires>
-    <CodeContractsInferEnsures>False</CodeContractsInferEnsures>
-    <CodeContractsInferEnsuresAutoProperties>True</CodeContractsInferEnsuresAutoProperties>
-    <CodeContractsInferObjectInvariants>False</CodeContractsInferObjectInvariants>
-    <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
-    <CodeContractsSuggestAssumptionsForCallees>False</CodeContractsSuggestAssumptionsForCallees>
-    <CodeContractsSuggestRequires>False</CodeContractsSuggestRequires>
-    <CodeContractsNecessaryEnsures>True</CodeContractsNecessaryEnsures>
-    <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
-    <CodeContractsSuggestReadonly>True</CodeContractsSuggestReadonly>
-    <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
-    <CodeContractsShowSquigglies>True</CodeContractsShowSquigglies>
-    <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
-    <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
-    <CodeContractsCustomRewriterAssembly />
-    <CodeContractsCustomRewriterClass />
-    <CodeContractsLibPaths />
-    <CodeContractsExtraRewriteOptions />
-    <CodeContractsExtraAnalysisOptions />
-    <CodeContractsSQLServerOption />
-    <CodeContractsBaseLineFile />
-    <CodeContractsCacheAnalysisResults>True</CodeContractsCacheAnalysisResults>
-    <CodeContractsSkipAnalysisIfCannotConnectToCache>False</CodeContractsSkipAnalysisIfCannotConnectToCache>
-    <CodeContractsFailBuildOnWarnings>False</CodeContractsFailBuildOnWarnings>
-    <CodeContractsBeingOptimisticOnExternal>True</CodeContractsBeingOptimisticOnExternal>
-    <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
-    <CodeContractsReferenceAssembly>%28none%29</CodeContractsReferenceAssembly>
-    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <BuildPackage>true</BuildPackage>
-    <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
-    <CodeContractsRuntimeOnlyPublicSurface>True</CodeContractsRuntimeOnlyPublicSurface>
-    <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
-    <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
-    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
-    <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
-    <CodeContractsNonNullObligations>True</CodeContractsNonNullObligations>
-    <CodeContractsBoundsObligations>True</CodeContractsBoundsObligations>
-    <CodeContractsArithmeticObligations>True</CodeContractsArithmeticObligations>
-    <CodeContractsEnumObligations>True</CodeContractsEnumObligations>
-    <CodeContractsRedundantAssumptions>True</CodeContractsRedundantAssumptions>
-    <CodeContractsAssertsToContractsCheckBox>True</CodeContractsAssertsToContractsCheckBox>
-    <CodeContractsRedundantTests>True</CodeContractsRedundantTests>
-    <CodeContractsMissingPublicRequiresAsWarnings>True</CodeContractsMissingPublicRequiresAsWarnings>
-    <CodeContractsMissingPublicEnsuresAsWarnings>False</CodeContractsMissingPublicEnsuresAsWarnings>
-    <CodeContractsInferRequires>True</CodeContractsInferRequires>
-    <CodeContractsInferEnsures>False</CodeContractsInferEnsures>
-    <CodeContractsInferEnsuresAutoProperties>True</CodeContractsInferEnsuresAutoProperties>
-    <CodeContractsInferObjectInvariants>False</CodeContractsInferObjectInvariants>
-    <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
-    <CodeContractsSuggestAssumptionsForCallees>False</CodeContractsSuggestAssumptionsForCallees>
-    <CodeContractsSuggestRequires>False</CodeContractsSuggestRequires>
-    <CodeContractsNecessaryEnsures>True</CodeContractsNecessaryEnsures>
-    <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
-    <CodeContractsSuggestReadonly>True</CodeContractsSuggestReadonly>
-    <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
-    <CodeContractsShowSquigglies>True</CodeContractsShowSquigglies>
-    <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
-    <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
-    <CodeContractsCustomRewriterAssembly />
-    <CodeContractsCustomRewriterClass />
-    <CodeContractsLibPaths />
-    <CodeContractsExtraRewriteOptions />
-    <CodeContractsExtraAnalysisOptions />
-    <CodeContractsSQLServerOption />
-    <CodeContractsBaseLineFile />
-    <CodeContractsCacheAnalysisResults>True</CodeContractsCacheAnalysisResults>
-    <CodeContractsSkipAnalysisIfCannotConnectToCache>False</CodeContractsSkipAnalysisIfCannotConnectToCache>
-    <CodeContractsFailBuildOnWarnings>False</CodeContractsFailBuildOnWarnings>
-    <CodeContractsBeingOptimisticOnExternal>True</CodeContractsBeingOptimisticOnExternal>
-    <CodeContractsRuntimeCheckingLevel>Pre and Post</CodeContractsRuntimeCheckingLevel>
-    <CodeContractsReferenceAssembly>%28none%29</CodeContractsReferenceAssembly>
-    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
-  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Not compiled in the legacy project either; preserved as-is. -->
+    <Compile Remove="ResourceStatus.cs" />
+  </ItemGroup>
+
+  <!-- Packaging: major-version bump to 2.0.0. The net10.0 retarget dropped System.UriTemplate,
+       ASP.NET Web API SelfHost, and JavaScriptSerializer-based JSON handling - real breaking changes
+       for consumers, hence major rather than minor/patch.
+       Uses SDK-style inline package metadata rather than RestKit.nuspec: a bare <NuspecFile> with no
+       <files> section does NOT pick up this project's own build output by convention (confirmed - it
+       produced a .nupkg with no lib\net10.0\RestKit.dll in it, NU5100). The metadata below mirrors
+       RestKit.nuspec's content; that file is no longer referenced from the build but left on disk. -->
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <Version>2.0.0</Version>
+    <PackageId>RestKit</PackageId>
+    <Title>RestKit</Title>
+    <Authors>Bruce Krakower</Authors>
+    <Description>Using RestKit is as simple as 'representation = Resource.Json().Get(uri)', then 'representation.GetContentAsJson()'. You can therefore handle unexpected content. Variations exist for Xml and Text. For advanced scenarios, you have full control of serialization, a callback pipeline, and full access to the underlying HttpClient and HttpResponseMessage. Use of RestKit is mockable using the IHttpResource interface and/or by injecting a mock HttpMessageHandler into a stub.</Description>
+    <PackageProjectUrl>https://github.com/bkjuice/RestKit</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>REST;Http Client;JSON;XML;HTTP</PackageTags>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <!-- Faithful port of the old post-build staging step: copy the packed .nupkg/.snupkg into packageStaging\.
+       Resolved relative to this project (not $(SolutionDir), which is only set when building via the .sln). -->
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>RestKit.snk</AssemblyOriginatorKeyFile>
+    <PackageStagingDir>$(MSBuildProjectDirectory)\..\..\packageStaging\</PackageStagingDir>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="CasingConvention.cs" />
-    <Compile Include="ContentHandlers.cs" />
-    <Compile Include="DefaultMedia.cs" />
-    <Compile Include="HttpClientPool.cs" />
-    <Compile Include="IHttpResource.cs" />
-    <Compile Include="IEventConfiguration.cs" />
-    <Compile Include="IPreConfiguredResource.cs" />
-    <Compile Include="MediaChain.cs" />
-    <Compile Include="MediaHandler.cs" />
-    <Compile Include="ReadOnlySeekableStream.cs" />
-    <Compile Include="Resource.Builders.cs" />
-    <Compile Include="ResourceEventConfiguration.cs" />
-    <Compile Include="Resource.cs" />
-    <Compile Include="XmlConventions.cs" />
-    <None Include="ResourceStatus.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Representation.cs" />
-    <Compile Include="UriExtensions.cs" />
-    <None Include="RestKit.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="RestKit.nuspec" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="CleanPackageOutputs" BeforeTargets="BuildPackage">
-    <Message Text="Cleaning build output packages..." />
+
+  <Target Name="StagePackages" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
     <ItemGroup>
-      <PackageOutputsToClean Include="$(TargetDir)*.nupkg" />
+      <PackagesBuilt Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg;$(PackageOutputPath)$(PackageId).$(PackageVersion).snupkg" />
+      <StaledPackages Include="$(PackageStagingDir)$(PackageId)*.nupkg;$(PackageStagingDir)$(PackageId)*.snupkg" />
     </ItemGroup>
-    <Delete Files="@(PackageOutputsToClean)" ContinueOnError="True" />
+    <Delete Files="@(StaledPackages)" ContinueOnError="true" />
+    <Copy SourceFiles="@(PackagesBuilt)" DestinationFolder="$(PackageStagingDir)" ContinueOnError="true" />
   </Target>
-  <Target Name="CleanStagedPackages" BeforeTargets="BuildPackage">
-    <Message Text="Cleaning staged packages..." />
-    <ItemGroup>
-      <PackagesToClean Include="$(SolutionDir)packageStaging\$(ProjectName)*.nupkg" />
-    </ItemGroup>
-    <Delete Files="@(PackagesToClean)" ContinueOnError="true" />
-  </Target>
-  <Target Name="StagePackages" AfterTargets="BuildPackage">
-    <Message Text="Cleaning staged packages..." />
-    <ItemGroup>
-      <PackagesBuilt Include="$(TargetDir)*.nupkg" />
-      <PackagesToClean Include="$(SolutionDir)packageStaging\$(ProjectName)*.nupkg" />
-    </ItemGroup>
-    <Delete Files="@(PackagesToClean)" ContinueOnError="true" />
-    <Copy ContinueOnError="true" SourceFiles="@(PackagesBuilt)" DestinationFiles="@(PackagesBuilt->'$(SolutionDir)packageStaging\%(Filename)%(Extension)')" />
-  </Target>
+
 </Project>

@@ -5,7 +5,7 @@ namespace RestKit
 {
     public class MediaChain
     {
-        private List<MediaHandler> handlers = new List<MediaHandler>();
+        private readonly List<MediaHandler> handlers = new List<MediaHandler>();
 
         public void AddHandler(MediaHandler handler)
         {
